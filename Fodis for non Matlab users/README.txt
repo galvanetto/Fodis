@@ -1,0 +1,1 @@
+Download the folder with the application compiled for your OS
