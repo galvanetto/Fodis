@@ -4,4 +4,4 @@ Type Fodis on command window and enter.
 
 
 
-It works on Matlab 2012b or more recent.
+It was written on Matlab 2016b.
