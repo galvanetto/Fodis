@@ -26,7 +26,7 @@ function varargout = fingerprint_ROI(varargin)
 
 % Edit the above text to modify the response to help fingerprint_ROI
 
-% Last Modified by GUIDE v2.5 28-Apr-2017 12:32:28
+% Last Modified by GUIDE v2.5 20-Jun-2017 11:12:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -338,4 +338,3 @@ title('Scores')
 xlabel('Trace number');
 ylim([0 max(scores)]); ylabel('Score');
 hold off;
-
