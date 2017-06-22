@@ -19,10 +19,6 @@ Fodis is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICE
 
 N. Galvanetto et al., ...
 
-# Main Features
-
-
-
 
 # Supported File Formats
 
@@ -37,11 +33,10 @@ txt (free format)
 
 ## Installation Requirements
 
-...
+The system requirements can be consulted here 
+https://it.mathworks.com/support/sysreq/previous_releases.html
+for version r2016b
 
-
-
-## Download
 
 
 
