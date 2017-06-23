@@ -1,8 +1,5 @@
 
-[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](http://www.)
 
-
-===============
 
 # About Fodis
 
