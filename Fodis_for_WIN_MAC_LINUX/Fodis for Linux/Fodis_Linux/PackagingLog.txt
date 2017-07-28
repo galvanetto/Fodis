@@ -1,0 +1,27 @@
+mcc -o Fodis -W main:Fodis -T link:exe -d '/home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis/for_testing' -v '/home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis.m' 
+Compiler version: 6.1 (R2015b)
+
+Dependency analysis by REQUIREMENTS.
+
+[Warning: Adding path "/home/aperissinotto/Source/Fodis/Fodis for Matlab
+users/Fodis1.0" to Compiler path instance.] 
+[] 
+Parsing file "/home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis.m"
+	(Referenced from: "Compiler Command Line").
+Deleting 9 temporary MEX authorization files.
+Removing: '/tmp/050b0bWeC1h_20656.auth'.
+Removing: '/tmp/050b0hZ0VHI_20656.auth'.
+Removing: '/tmp/050b0eyjs3N_20656.auth'.
+Removing: '/tmp/050b0hyZ9kn_20656.auth'.
+Removing: '/tmp/050b0C4T0oT_20656.auth'.
+Removing: '/tmp/050b0HdDtFs_20656.auth'.
+Removing: '/tmp/050b0n4TV0x_20656.auth'.
+Removing: '/tmp/050b0Z2vqmD_20656.auth'.
+Removing: '/tmp/050b0VVNmIc_20656.auth'.
+Generating file "/home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis/for_testing/readme.txt".
+Generating file "/home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis/for_testing/run_Fodis.sh".
+Packaging...
+Creating the bundle...
+Web based installer created at /home/aperissinotto/Source/Fodis/Fodis for Matlab users/Fodis1.0/Fodis/for_redistribution/MyAppInstaller_web.install.
+Packaging complete.
+Elapsed packaging time was: 53 seconds.
