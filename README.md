@@ -10,7 +10,6 @@ Fodis is a desktop application to visualise and analyze Force Spectroscopy curve
 
 
 
-
 # License
 
 Fodis is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
@@ -40,7 +39,13 @@ The system requirements can be consulted here
 https://it.mathworks.com/support/sysreq/previous_releases.html
 for version r2016b
 
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view4.JPG">
 
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view2.JPG">
+
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view3.JPG">
+
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view5.JPG">
 
 
 
