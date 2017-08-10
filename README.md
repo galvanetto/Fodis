@@ -3,7 +3,7 @@
 
 # About Fodis
 
-Fodis is a desktop application to visualise and analize Force Spectroscopy data coming from the unfolding of single molecules.
+Fodis is a desktop application to visualise and analize Force Spectroscopy curves of the unfolding of single molecules.
 
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view.JPG">
 
@@ -22,9 +22,12 @@ N. Galvanetto et al., ...
 
 # Supported File Formats
 
-txt (exrtacted from JPK)
+txt (exrtacted from JPK) \t
+
 jpk-force
+
 txt (exrtacted from Bruker)
+
 txt (free format)
 
 **Note**: the tool is still evolving
