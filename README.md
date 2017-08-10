@@ -8,9 +8,8 @@ Fodis is a desktop application to visualise and analyze Force Spectroscopy curve
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/afm-ot.JPG">
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view.JPG">
 
-# Download
+[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/archive/master.zip)
 
-Push the green button on top of this page >> Clone or download << and download the .zip file (or clone the repository).
 
 # License
 
