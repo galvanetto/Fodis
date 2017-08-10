@@ -5,8 +5,7 @@
 
 Fodis is a desktop application to visualise and analize Force Spectroscopy data coming from the unfolding of single molecules.
 
-[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](http://www.ebi.ac.uk/pride/resources/tools/inspector/latest/desktop/pride-inspector.zip)
-
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view.JPG">
 
 # Download
 
