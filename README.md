@@ -39,11 +39,17 @@ The system requirements can be consulted here
 https://it.mathworks.com/support/sysreq/previous_releases.html
 for version r2016b
 
+# Some features examples
+
+
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view4.JPG">
+
 
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view2.JPG">
 
+
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view3.JPG">
+
 
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view5.JPG">
 
