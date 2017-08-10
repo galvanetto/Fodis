@@ -1,5 +1,5 @@
 
-
+[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/archive/master.zip)
 
 # About Fodis
 
@@ -8,7 +8,7 @@ Fodis is a desktop application to visualise and analyze Force Spectroscopy curve
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/afm-ot.JPG">
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view.JPG">
 
-[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/archive/master.zip)
+
 
 
 # License
