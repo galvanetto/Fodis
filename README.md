@@ -9,7 +9,7 @@ Fodis is a desktop application to visualise and analize Force Spectroscopy curve
 
 # Download
 
-Push the green button >> Clone or download << and download the .zip file (or clone the repository).
+Push the green button on top of this page >> Clone or download << and download the .zip file (or clone the repository).
 
 # License
 
@@ -22,13 +22,13 @@ N. Galvanetto et al., ...
 
 # Supported File Formats
 
-txt (exrtacted from JPK) \t
+-txt (exrtacted from JPK) 
 
-jpk-force
+-jpk-force
 
-txt (exrtacted from Bruker)
+-txt (exrtacted from Bruker)
 
-txt (free format)
+-txt (free format)
 
 **Note**: the tool is still evolving
 
