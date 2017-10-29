@@ -26,7 +26,7 @@ function varargout = absolute2tss(varargin)
 
 % Edit the above text to modify the response to help absolute2tss
 
-% Last Modified by GUIDE v2.5 28-Sep-2017 14:41:41
+% Last Modified by GUIDE v2.5 26-Oct-2017 16:51:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,7 +61,13 @@ guidata(hObject, handles);
 nTraces=positiveResult.nTraces;
 set(handles.slider_finger, 'Min', 1);
 set(handles.slider_finger, 'Max', nTraces);
-set(handles.slider_finger, 'SliderStep', [1/(nTraces-1) 1/(nTraces-1)]);
+
+if nTraces > 1
+    set(handles.slider_finger, 'SliderStep', [1/(nTraces-1) 1/(nTraces-1)]);
+else
+    set(handles.slider_finger, 'SliderStep', [0.5 0.5]);    
+end
+
 set(handles.slider_finger, 'Value', 1);
 
 set(handles.textlimit_finger,'string',['/' num2str(positiveResult.nTraces)])
@@ -165,7 +171,14 @@ elseif R==4
     xdata=-ydatat;
     ydata=xdatat;
 end
-            
+
+
+%CORRECTION FACTOR  x axis
+if get(handles.ignoreconversion, 'Value')==0
+    xdata=xdata * str2double(get(handles.editmultiplier, 'string'));
+end
+
+
 %SENSITIVITY Y axis
 if get(handles.ignoreSens, 'Value')==0
     ydata=ydata * str2double(get(handles.sensitivity, 'string')) *1e-9;
@@ -187,8 +200,6 @@ if get(handles.ignoreBaseline, 'Value')==0
     xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
     xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
     
-    patch([xmin_Mx xmin_Mx xmax_Mx xmax_Mx], 20*[My my my My] , 'red', 'FaceAlpha',.5);
-    
     %indeces of the interval
     xtoaver=find(xdata>xmin_Mx & xdata<xmax_Mx);
     
@@ -197,6 +208,20 @@ if get(handles.ignoreBaseline, 'Value')==0
     
     %bring to zero the baseline
     ydata=ydata-yto0;
+    
+    if get(handles.ignoreContact, 'Value')==1
+        %for plot of the patch only, recalculate the limits
+        mx=min(xdata);
+        Mx=max(xdata);
+        my=min(ydata);
+        My=max(ydata);
+        
+        xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
+        xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
+        
+        patch([xmin_Mx xmin_Mx xmax_Mx xmax_Mx], 20*[My my my My] , 'red', 'FaceAlpha',.5);
+    end
+    
 end
 
 %CONTACT POINT
@@ -211,6 +236,21 @@ if get(handles.ignoreContact, 'Value')==0
     end
     
     xdata=xdata-zero;
+    
+    if get(handles.ignoreBaseline, 'Value')==0
+        %for plot of the patch only, recalculate the limits
+        mx=min(xdata);
+        Mx=max(xdata);
+        my=min(ydata);
+        My=max(ydata);
+        
+        xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
+        xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
+        
+        patch([xmin_Mx xmin_Mx xmax_Mx xmax_Mx], 20*[My my my My] , 'red', 'FaceAlpha',.5);
+    end
+     
+    
 end
 
 %TSS
@@ -310,6 +350,12 @@ for kk=1:nTraces
         xdata=-ydatat;
         ydata=xdatat;
     end
+    
+    %CORRECTION FACTOR  x axis
+    if get(handles.ignoreconversion, 'Value')==0
+        xdata=xdata * str2double(get(handles.editmultiplier, 'string'));
+    end
+    
     
     %SENSITIVITY Y axis
     if get(handles.ignoreSens, 'Value')==0
@@ -464,6 +510,21 @@ set(handles.sensitivity,'string', str2double(get(handles.sensitivity2, 'string')
 showTrace(handles)
 
 function sensitivity2_CreateFcn(hObject, eventdata, handles)
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function ignoreconversion_Callback(hObject, eventdata, handles)
+showTrace(handles)
+
+
+function editmultiplier_Callback(hObject, eventdata, handles)
+
+
+
+function editmultiplier_CreateFcn(hObject, eventdata, handles)
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');

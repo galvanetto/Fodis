@@ -1486,26 +1486,6 @@ exportTraces(tempData);
 
 function menuRemoveDuplicates_Callback(hObject, eventdata, handles)
 
-function path_plot_Callback(hObject, eventdata, handles)
-global data
-
-if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
-
-pushbutton_updategrouping_Callback(handles.pushbutton_updategrouping, eventdata, handles)
-parameters_path;
-
-
-function combo_path_plot_Callback(hObject, eventdata, handles)
-
-global data
-global positiveResult
-
-if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
-
-sizeMarker = str2double (get(handles.editSizeMarker, 'string'));
-[TracesGroup]=combo_path_plot(data.GMreduced,sizeMarker);
-Selected=ismember(find(~data.removeTraces),positiveResult.indexTrace);
-data.TracesGroup(Selected)=TracesGroup;
 
 
 function menuCorr2Valid_Callback(hObject, eventdata, handles)
@@ -2891,8 +2871,16 @@ if ( abs(min(tss)*1e9) > 2000 | abs(max(tss)*1e9) > 2000 | abs(min(F)*1e12) > 20
 end
 
 
-function thomaplot_Callback(hObject, eventdata, handles)
+function path_plot_Callback(hObject, eventdata, handles)
+global data
 
+if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
+
+pushbutton_updategrouping_Callback(handles.pushbutton_updategrouping, eventdata, handles)
+parameters_path;
+
+
+function combo_path_plot_Callback(hObject, eventdata, handles)
 
 global data
 global positiveResult
@@ -2900,7 +2888,21 @@ global positiveResult
 if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
 
 sizeMarker = str2double (get(handles.editSizeMarker, 'string'));
-[TracesGroup]=Thoma_plot(data.GMreduced,sizeMarker);
+[TracesGroup]=combo_path_plot(data.GMreduced,sizeMarker);
 Selected=ismember(find(~data.removeTraces),positiveResult.indexTrace);
 data.TracesGroup(Selected)=TracesGroup;
+
+function thomaplot_Callback(hObject, eventdata, handles)
+
+global data
+
+if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
+
+%calculate data.LcFc
+set(handles.popupmenuView,'value',10)
+showTraces(handles)
+
+pushbutton_updategrouping_Callback(handles.pushbutton_updategrouping, eventdata, handles)
+parameters_thoma;
+
 
