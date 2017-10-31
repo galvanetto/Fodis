@@ -5,8 +5,8 @@
 
 Fodis is a desktop application to visualise and analyze Force Spectroscopy curves of the unfolding of Single Molecules.
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/afm-ot.JPG">
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/afm-ot.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view.JPG">
 
 
 
@@ -42,16 +42,16 @@ for version r2016b
 # Some features examples
 
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view4.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view4.JPG">
 
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view2.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view2.JPG">
 
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view3.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view3.JPG">
 
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/Fodis_SourceCode_MATLAB/Fodis1.0/view5.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view5.JPG">
 
 
 
