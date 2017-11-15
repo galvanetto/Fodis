@@ -148,7 +148,7 @@ function show_excluded_Callback(hObject, eventdata, handles)
 function pushbutton_selectFolder_Callback(hObject, eventdata, handles)
 global data
 
-intexstr={'.txt','.jpk-force','.txt'};
+intexstr={'.txt','.jpk-force','.txt','.spm'};
 indexpop=get(handles.popupmenu_extension,'Value');
 extsel=intexstr{indexpop};
 % get panel_folder
@@ -174,7 +174,7 @@ popupmenu_extension_Callback(handles.popupmenu_extension,eventdata, handles)
 function popupmenu_extension_Callback(hObject, eventdata, handles)
 global data
 
-intexstr={'.txt','.jpk-force','.txt'};
+intexstr={'.txt','.jpk-force','.txt','.spm'};
 indexpop=get(hObject,'Value');
 extsel=intexstr{indexpop};
 
@@ -211,7 +211,7 @@ global data
 global mainHandles
 global temp
 
-intexstr={'.txt','.jpk-force','.txt'};
+intexstr={'.txt','.jpk-force','.txt','.spm'};
 indexpop=get(handles.popupmenu_extension,'Value');
 filteron=get(handles.checkbox_enablefilt,'Value');
 showexon=get(handles.show_excluded,'Value');
@@ -245,11 +245,13 @@ if(waitbarFactor == 0);waitbarFactor = 1;end
 for ii = 1:1:nFiles
     try
         if indexpop==1              %.txt acquisition
-            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readTxt(files,ii);
+            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readTxt(files{ii});
         elseif indexpop==2
-            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readJPK(files,ii);
+            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readJPK(files{ii});
         elseif indexpop==3
-            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readBruker(files,ii);    
+            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readBrukerTxt(files{ii});               
+        elseif indexpop==4
+            [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readBruker(files{ii});    
         end
     catch e
         disp(['Pass to the next File.' files{ii} ' not acquired']);
@@ -287,6 +289,12 @@ for ii = 1:1:nFiles
         waitbar(ii / nFiles, h);
         disp([num2str(ii * 100 / nFiles), '% loaded files: ', num2str(ii)]);
     end
+end
+try
+    if indexpop==1
+        data.acquisitionParameter=readAcquisitionParameter(files{ii});
+    end
+catch e
 end
 
 temp.tracesExtend(all(cellfun('isempty',temp.tracesExtend),2),:) = [];

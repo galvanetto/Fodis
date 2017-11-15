@@ -49,13 +49,11 @@ end
 
 function absolute2tss_OpeningFcn(hObject, eventdata, handles, varargin)
 global positiveResult
+global data
 global mainHandles
 
 % Choose default command line output 
 handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
 
 %Gui Setting
 nTraces=positiveResult.nTraces;
@@ -69,11 +67,27 @@ else
 end
 
 set(handles.slider_finger, 'Value', 1);
-
-set(handles.textlimit_finger,'string',['/' num2str(positiveResult.nTraces)])
-
-
+set(handles.textlimit_finger,'string',['/' num2str(positiveResult.nTraces)]);
 showTrace(handles)
+
+try
+    set(handles.sensitivity,'string', num2str(data.acquisitionParameter.Sensitivity*1e9)) ;
+    set(handles.sensitivity2,'string', num2str(data.acquisitionParameter.Sensitivity*1e9)) ;
+catch
+end
+
+try
+    set(handles.spring,'string', num2str(data.acquisitionParameter.SpringConstant)) ;
+catch
+end
+
+try
+    set(handles.editmultiplier,'string', num2str(data.acquisitionParameter.Multiplier)) ;
+catch
+end
+
+% Update handles structure
+guidata(hObject, handles);
 
 
 function varargout = absolute2tss_OutputFcn(hObject, eventdata, handles) 
@@ -269,11 +283,6 @@ xlim([min(xdata)-abs(0.2*min(xdata)) max(xdata)+0.2*max(xdata)]);   xlabel('Dist
 ylim([min(ydata)-abs(0.2*min(ydata)) max(ydata)+0.2*max(ydata)]); ylabel('Deflection (V or m or N)');
 grid on;
 
-% plot(xdata*1e9,ydata*1e12, 'b')
-% % set axis label
-% title(['Trace nr. ' num2str(indexTrace)])
-% xlim([min(xdata*1e9)-abs(0.1*min(xdata*1e9)) max(xdata*1e9)+0.1*max(xdata*1e9)]);   xlabel('Distance (nm)');
-% ylim([min(ydata*1e12)-abs(0.1*min(ydata*1e12)) max(ydata*1e12)+0.1*max(ydata*1e12)]); ylabel('Deflection (V or nm or pN)');
 set(gca,'FontSize',7)
 
 
@@ -414,9 +423,9 @@ for kk=1:nTraces
     
     
     
-    retractTipSampleSeparation = cell2mat(data.tracesRetract(indexTrace, 1));
-    data.tracesRetract(indexTrace, 1) = mat2cell(xdata, 1 );
-    data.tracesRetract(indexTrace, 2) = mat2cell(mirror*ydata, 1 );
+    retractTipSampleSeparation = cell2mat(data.tracesRetract(indexeffTrace, 1));
+    data.tracesRetract(indexeffTrace, 1) = mat2cell(xdata, 1 );
+    data.tracesRetract(indexeffTrace, 2) = mat2cell(mirror*ydata, 1 );
     
     
     
@@ -449,7 +458,7 @@ showTrace(handles)
 
 
 function sensitivity_Callback(hObject, eventdata, handles)
-set(handles.sensitivity2,'string', str2double(get(handles.sensitivity, 'string')) );
+set(handles.sensitivity2,'string', get(handles.sensitivity, 'string'));
 showTrace(handles)
 
 
@@ -506,7 +515,7 @@ function ignoretss_Callback(hObject, eventdata, handles)
 showTrace(handles)
 
 function sensitivity2_Callback(hObject, eventdata, handles)
-set(handles.sensitivity,'string', str2double(get(handles.sensitivity2, 'string')) );
+set(handles.sensitivity,'string', get(handles.sensitivity2, 'string'));
 showTrace(handles)
 
 function sensitivity2_CreateFcn(hObject, eventdata, handles)

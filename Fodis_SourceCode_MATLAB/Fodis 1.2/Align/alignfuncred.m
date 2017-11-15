@@ -1,6 +1,5 @@
 function [mean_all_filt2,ref2,mean_all_2]=alignfuncred(newbins,mean_all_filt,ref,mean_all,sigm,maxlag)
 
-%Randomize
 unitaryspacing=newbins(2)-newbins(1);
 nrAll=size(mean_all_filt,2);
 
@@ -15,9 +14,8 @@ nmdelay2=zeros(nrAll,1);
 ref1=zeros(size(ref,1),size(ref,2));
 ref2=zeros(size(ref,1),size(ref,2));
 
-list=1:1:nrAll;
-ix=randperm(nrAll);
-list_r=list(ix);
+list=1:1:nrAll;                                                            %Randomize
+list_r=list(randperm(nrAll));
 
 if length(list_r)==1 || length(list_r)==2
     list_r=[list_r,list_r,list_r];
@@ -105,10 +103,3 @@ for kk=1:nrAll
 end
 
 
-function weighttop=crsscrlweight(crsscrl,lagsnm,dist,sigm)
-
-gausswei= normpdf(lagsnm,-dist,sigm);
-gausswei=(gausswei-min(gausswei(:)))./(max(gausswei(:))-min(gausswei(:)));
-
-newcrsscrl=gausswei'.*crsscrl;
-[~,weighttop]=max(newcrsscrl);

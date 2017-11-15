@@ -22,7 +22,7 @@ function varargout = automaticAlign_st2(varargin)
 
 % Edit the above text to modify the response to help automaticAlign_st2
 
-% Last Modified by GUIDE v2.5 20-Dec-2016 12:44:23
+% Last Modified by GUIDE v2.5 13-Nov-2017 13:38:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -44,7 +44,6 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before automaticAlign_st2 is made visible.
 function automaticAlign_st2_OpeningFcn(hObject, eventdata, handles, varargin)
 global datalgn
 
@@ -65,8 +64,8 @@ else
 end
 
 setappdata(handles.figure_alst2,'triggergroup',0)
+cmpt_algnment(handles)                                                     %Compute the group reference
 
-cmpt_algnment(handles)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -215,27 +214,28 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function cmpt_algnment(handles)
-
+%% Compute the mean referenc of each group
 global datalgn
 global data
 
-nrGroup=data.Alignment.nrgroups;
-nrit=data.Alignment.nrit;
-newbins=data.Alignment.newbins;
-sigm=data.Alignment.sigm;
+nrGroup=data.Alignment.nrgroups;                                           %Number of group
+nrit=data.Alignment.nrit;                                                  %Number of iteration
+newbins=data.Alignment.newbins;                                            %X axis of histogram
+sigm=data.Alignment.sigm;                                                  %Gaussian sigma
 
-Sgolay_filt=get(handles.checkboxSgolay_filt,'Value');
+MinPeakHeight=str2double(get(handles.edit_MinPeakHeight,'String'));        %FindPeaks Minimum Height 
+MinPeakProm=str2double(get(handles.edit_MinPeakProm,'String'));            %FindPeaks Minimum Peak Prominence                
+MinPeakDist=str2double(get(handles.edit_MinPeakDist,'String'))*1E-9;       %FindPeaks Minimum Peak Distance
+lengthpeaks=str2double(get(handles.edit_lengthpeaks,'String'))*1E-9;       
 
-k=str2double(get(handles.edit_filter_k,'String'));
-f=str2double(get(handles.edit_filter_f,'String'));
-MinPeakHeight=str2double(get(handles.edit_MinPeakHeight,'String'));
-MinPeakProm=str2double(get(handles.edit_MinPeakProm,'String'));
-MinPeakDist=str2double(get(handles.edit_MinPeakDist,'String'))*1E-9;
-lengthpeaks=str2double(get(handles.edit_lengthpeaks,'String'))*1E-9;
-maxlagnm=str2double(get(handles.edit_maxlag,'string'))*1E-9;
-maxlag=round(maxlagnm/(newbins(2)-newbins(1)));
+maxlagnm=str2double(get(handles.edit_maxlag,'string'))*1E-9;               % Max Lag available for correlation function in nm
+maxlag=round(maxlagnm/(newbins(2)-newbins(1)));                            % Max lag available for correlation function in position    
 
-maxrep=str2double(get(handles.edit_maxrep,'String'));
+SgolayFlag=get(handles.checkboxSgolay_filt,'Value');                       %Sgolay Filter On                  
+k=str2double(get(handles.edit_filter_k,'String'));                         %Sgolay Filter k
+f=str2double(get(handles.edit_filter_f,'String'));                         %Sgolay FIlter f
+
+maxHistCount=str2double(get(handles.edit_maxrep,'String'));                %Max Histogram COunt (value above this on histogram are shifted to the max Value)
 
 ref_all=[];
 Yalgn_all=[];
@@ -245,58 +245,77 @@ mean_all_filt=[];
 mean_ref_all=[];
 
 for ii=1:nrit
+    %Select the Iteration
     for ll=1:nrGroup
         
-        index=zeros(1,length(newbins));
-        if Sgolay_filt
-            filtcomp=sgolayfilt(datalgn{ii,ll}.mean_group,k,f);
+        if SgolayFlag
+            filtcomp=sgolayfilt(datalgn{ii,ll}.mean_group,k,f);            %Apply filter to smooth the group mean 
         else
-            filtcomp=datalgn{ii,ll}.mean_group;
+            filtcomp=datalgn{ii,ll}.mean_group;                            %Do not apply the filter
         end
         
-        datalgn{ii,ll}.filtcomp=filtcomp;
+        datalgn{ii,ll}.filtcomp=filtcomp;                                  %Save the filtered histogram                                  
         
-        [~,locs,~,~]=findpeaks(filtcomp,data.Alignment.newbins,'MinPeakHeight',MinPeakHeight,...
-            'MinPeakProminence',MinPeakProm,'MinPeakDistance',MinPeakDist);
+        [~,locs,~,~]=findpeaks(filtcomp,data.Alignment.newbins,...         %FindPeaks on histogram
+            'MinPeakHeight',MinPeakHeight,...
+            'MinPeakProminence',MinPeakProm,...
+            'MinPeakDistance',MinPeakDist);
         
+        index=zeros(1,length(newbins));                                    %Preallocate the index
+
         for jj=1:length(locs)  
-            low=locs(jj)-lengthpeaks;
+            low=locs(jj)-lengthpeaks;                                      %take only the part of the histogram only on the around
             high=locs(jj)+lengthpeaks;
             index=index|(newbins>low & newbins<high);
         end
         
         %Cut above the max repetition
-        filtcomp(~index)=0;
-        filtcomp(filtcomp>maxrep)=maxrep;
+        filtcomp(~index)=0;                                                % Put the histogram on zero outside the peaks
+        filtcomp(filtcomp>maxHistCount)=maxHistCount;                      % Max Histogram Count (value above this on histogram are shifted to the max Value)
         
-        %All value of all group of all iteration collected in an unique list        
-        ref_all=cat(2,ref_all,datalgn{ii,ll}.ref);                       
-        Yalgn_all=cat(2,Yalgn_all,datalgn{ii,ll}.Yalgn);                  
-        hstgrmalgn_all=cat(2,hstgrmalgn_all,datalgn{ii,ll}.hstgrmalgn);    %All histogram after the alignment
-        %Group reference
-        mean_all=cat(2,mean_all,datalgn{ii,ll}.filtcomp);     %NOT ALIGNED %All group reference original (after sgolay if done) dim:nrgroup*nriter                                                       
-        mean_all_filt=cat(2,mean_all_filt,filtcomp);        
-        mean_ref_all=cat(2,mean_ref_all,mean(datalgn{ii,ll}.ref));          %All zero for each reference calculated as avg of group ref
+        %Collect All value of all group of all iteration collected in
+        %an unique list. All data is aligned (group-wise)        
+        ref_all=cat(2,ref_all,datalgn{ii,ll}.ref);                         %All zero-reference of all traces of all group of all iteration                         
+        Yalgn_all=cat(2,Yalgn_all,datalgn{ii,ll}.Yalgn);                   %All traces of all the group of all iteration 
+        hstgrmalgn_all=cat(2,hstgrmalgn_all,datalgn{ii,ll}.hstgrmalgn);    %All histogram of all traces of all iteration 
+        
+        %Group reference obtained by aligning each trace in the group but
+        %NOT ALIGNED each other
+        mean_all=cat(2,mean_all,datalgn{ii,ll}.filtcomp);                  %All group template original (after sgolay if done) dim:nrgroup*nriter                                                       
+        mean_all_filt=cat(2,mean_all_filt,filtcomp);                       %All group template after peaks isolation
+        mean_ref_all=cat(2,mean_ref_all,mean(datalgn{ii,ll}.ref));         %All zero for each reference calculated as avg of group ref
     end
 end
 
-data.Alignment.ref_all=ref_all;                 %All zero of all single traces after the GROUP alignment 
-data.Alignment.Yalgn_all=Yalgn_all;             %All Force traces  after the GROUP alignment
-data.Alignment.hstgrmalgn_all=hstgrmalgn_all;   %All histogram after the GROUP alignment
-data.Alignment.mean_all=mean_all_filt;          %NOT ALIGNED %All group reference filtered (only peaks saved)     dim:nrgroup*nriter
+%Collect All value of all group of all iteration collected in
+%an unique list. All data is aligned (group-wise)
+data.Alignment.ref_all=ref_all;                                            %All zero-reference of all traces of all iteration
+data.Alignment.Yalgn_all=Yalgn_all;                                        %All traces of all the group of all iteration 
+data.Alignment.hstgrmalgn_all=hstgrmalgn_all;                              %All histogram after the GROUP alignment
 
-[data.Alignment.reference,data.Alignment.zeroref,data.Alignment.reference_nofilter]=...
-    alignfuncred(newbins,mean_all_filt,mean_ref_all,mean_all,sigm,maxlag);
+%Group reference obtained by aligning each trace in the group but
+%NOT ALIGNED each other
+data.Alignment.mean_all=mean_all_filt;                                     %All group reference filtered (only peaks saved)     dim:nrgroup*nriter
 
-cmpt_reference(handles);
+[data.Alignment.reference,...                                              % Template of each group aligned to each other
+    data.Alignment.zeroref,...                                             % zero Reference of each group template after alignment
+    data.Alignment.reference_nofilter]=...                                 % Template of each group aligned to each other (before filtering)
+    alignfuncred...
+    (newbins,...                                                           % Common X axes for histogram
+    mean_all_filt,...                                                      % All group template after peaks isolation
+    mean_ref_all,...                                                       % All zero for each reference calculated as avg of group ref
+    mean_all,...                                                           % All group template original (after sgolay if done) dim:nrgroup*nriter
+    sigm,maxlag);
+
+cmpt_reference(handles);                                                   %Compute the GLOBAL REFERENCE
 
 
 function cmpt_reference(handles)
-
+%% Compute the global reference on which align all the trace trace
 global data
 
-reference=data.Alignment.reference;
-zeroref=data.Alignment.zeroref;
+reference=data.Alignment.reference;                                        %All reference for each
+zeroref=data.Alignment.zeroref;                                            %zero reference of each template of the group                                                
 
 newbins=data.Alignment.newbins;
 weight=data.Alignment.weight;
@@ -327,12 +346,13 @@ weight=data.Alignment.weight;
 reference_nof=data.Alignment.reference_nofilter;
 reference=data.Alignment.reference;
 zero_references=data.Alignment.zeroref;
-%Identify all the iteration on the same groups
-samegroup=(0:nrGroup:nrGroup*(nrit-1))+indexGroup;
-%and compute the mean of all of the reference of the same group
-reference_avg=mean(reference(:,samegroup),2);            %for filtered
-reference_avg_nof=mean(reference_nof(:,samegroup),2);    %and not filtered
-zeroref_both=mean(zero_references(:,samegroup),2);  %and the zero
+
+samegroup=(0:nrGroup:nrGroup*(nrit-1))+indexGroup;                         %Identify all the iteration on the same groups
+
+% Compute the mean of all of the reference of the same group
+reference_avg=mean(reference(:,samegroup),2);                              %for filtered
+reference_avg_nof=mean(reference_nof(:,samegroup),2);                      %and not filtered
+zeroref_both=mean(zero_references(:,samegroup),2);                         %and the zero
 
 %Mean of all references weighted
 MotherOfRef=data.Alignment.MotherOfRef;
@@ -394,7 +414,23 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function align_fin_Callback(hObject, eventdata, handles)
+function pushButton_finalAlignReferenceBinarized_Callback(hObject, eventdata, handles)
+%% Align to reference binazrized
+global data
+Reference=data.Alignment.MotherOfRef;
+finalAlign(handles,Reference)
+
+
+function pushButton_finalAlignReference_Callback(hObject, eventdata, handles)
+%% Align to reference computed as mean of reference of single group
+global data
+Reference=data.Alignment.MotherOfRef_Nof;
+finalAlign(handles,Reference)
+
+
+function finalAlign(handles,Reference)
+
+%% Align to reference computed as mean of reference of single group
 
 global data
 global mainHandles
@@ -408,13 +444,17 @@ unitaryspacing=newbins(2)-newbins(1);
 maxlagnm=str2double(get(handles.edit_maxlag,'string'))*1E-9;
 maxlag=round(maxlagnm/(unitaryspacing));
 
-MotherOfRef=data.Alignment.MotherOfRef;
+
+% MotherOfRef_nof=data.Alignment.MotherOfRef_Nof;
 Motherzeroref=data.Alignment.Motherzeroref;
 %Bring Mother of ref in zero
-MotherOfRef=interp1(newbins-Motherzeroref,MotherOfRef,newbins);
-MotherOfRef(isnan(MotherOfRef))=0;
+Reference=interp1(newbins-Motherzeroref,Reference,newbins);
+Reference(isnan(Reference))=0;
 
-Selected=find(ismember(find(~data.removeTraces),positiveResult.indexTrace));
+
+Selected=find(~data.removeTraces);
+SelinValid=ismember(find(~data.removeTraces),positiveResult.indexTrace);
+Selected=Selected(SelinValid);
 groups=data.TracesGroup(Selected);
 
 listall=[];
@@ -430,10 +470,11 @@ for jj=1:nrGroup
     ref_pre2=cat(2,ref_pre2,datalgn{1,jj}.refor);
 end
 
+
 for kk=1:length(listall)
 
     
-    [crsscrl,lags]=xcorr(MotherOfRef,hstgrm_pre(:,kk),maxlag);
+    [crsscrl,lags]=xcorr(Reference,hstgrm_pre(:,kk),maxlag);
     lagsnm=lags*unitaryspacing;
     
     dist=ref_pre1(kk);
@@ -443,60 +484,7 @@ for kk=1:length(listall)
     nmdelay(kk)=nmdelay(kk);
 %     +ref_pre2(kk);
     
-end
-
-data.translateLc(Selected(listall))=nmdelay;
-changeupdatecolor(mainHandles,0)
-
-function align_fin_ref_Callback(hObject, eventdata, handles)
-global data
-global mainHandles
-global datalgn
-global positiveResult
-
-nrGroup=data.Alignment.nrgroups;
-sigm=data.Alignment.sigm;
-newbins=data.Alignment.newbins;
-unitaryspacing=newbins(2)-newbins(1);
-maxlagnm=str2double(get(handles.edit_maxlag,'string'))*1E-9;
-maxlag=round(maxlagnm/(unitaryspacing));
-
-MotherOfRef_nof=data.Alignment.MotherOfRef_Nof;
-Motherzeroref=data.Alignment.Motherzeroref;
-%Bring Mother of ref in zero
-MotherOfRef_nof=interp1(newbins-Motherzeroref,MotherOfRef_nof,newbins);
-MotherOfRef_nof(isnan(MotherOfRef_nof))=0;
-
-Selected=find(ismember(find(~data.removeTraces),positiveResult.indexTrace));
-groups=data.TracesGroup(Selected);
-
-listall=[];
-hstgrm_pre=[];
-ref_pre1=[];
-ref_pre2=[];
-
-for jj=1:nrGroup 
-    list=find(groups==jj); 
-    listall=cat(1,listall,list);
-    hstgrm_pre=cat(2,hstgrm_pre,datalgn{1,jj}.hstgrmi);
-    ref_pre1=cat(2,ref_pre1,datalgn{1,jj}.ref);
-    ref_pre2=cat(2,ref_pre2,datalgn{1,jj}.refor);
-end
-
-for kk=1:length(listall)
-
-    
-    [crsscrl,lags]=xcorr(MotherOfRef_nof,hstgrm_pre(:,kk),maxlag);
-    lagsnm=lags*unitaryspacing;
-    
-    dist=ref_pre1(kk);
-    posmax=crsscrlweight(crsscrl,lagsnm,dist,sigm);
-    
-    nmdelay(kk)=lags(posmax)*unitaryspacing;
-    nmdelay(kk)=nmdelay(kk);
-%     +ref_pre2(kk);
-    
-end
+end    
 
 data.translateLc(Selected(listall))=nmdelay;
 changeupdatecolor(mainHandles,0)
@@ -546,5 +534,3 @@ gausswei=gausswei./(max(gausswei(:)));
 
 newcrsscrl=gausswei.*crsscrl;
 [~,weighttop]=max(newcrsscrl);
-
-

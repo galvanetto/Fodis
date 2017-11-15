@@ -75,7 +75,7 @@ x1 = x1((F1<(-50*1e-12) & F1>(-400*1e-12)));                   %condition
 
 if isempty(x1)
     overzero=find(F1>0);
-    zero=x1(overzero(1));
+    zero=x0(overzero(1));
 else
     zero=mean(x1);
 end

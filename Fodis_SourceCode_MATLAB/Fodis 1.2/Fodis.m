@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 24-Oct-2017 17:17:40
+% Last Modified by GUIDE v2.5 14-Nov-2017 19:21:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -100,7 +100,7 @@ data.sessionFileName = '';
 data.fileNames = {};
 data.listLc={};
 data.listFc={};
-
+data.SGFilter=[];
 
 % clear temp data
 setappdata(handles.axesMain, 'selectedLcDeltaLc', []);
@@ -907,24 +907,63 @@ end
 
 function SGL_fil_Callback(hObject, eventdata, handles)
 global data
+global positiveResult
 
 on=get(hObject,'Value');
 k=str2double(get(handles.SG_k,'String'));
 f=str2double(get(handles.SG_f,'String'));
+ 
+nTraces = positiveResult.nTraces;                          %Nr total traces
+indexTrace = min( round(get(handles.sliderTraces, 'value')), nTraces);    %Slider Position
+indexeffTrace=positiveResult.indexTrace(indexTrace);       %Actual trace
+
 if on
     if k>=f; warndlg('k must be < f'); set(hObject,'value',0);return
     elseif mod(f,2)==0; warndlg('f must be odd');set(hObject,'value',0); return
-    else 
-        for ii=1:1:size(data.tracesRetract,1)
-            data.tracesRetract{ii, 2}=sgolayfilt(data.tracesRetractBackup{ii, 2},k,f);
+    else   
+        data.SGFilter(indexeffTrace,1)=1;
+        data.tracesRetract{indexeffTrace,2}=sgolayfilt(data.tracesRetractBackup{indexeffTrace, 2},k,f);       
+    end
+else
+    data.SGFilter(indexeffTrace,1)=0;
+    data.tracesRetract{indexeffTrace,2}=data.tracesRetractBackup{indexeffTrace, 2};
+end
+
+changeupdatecolor(handles,0)
+
+function update_smooth_Callback(hObject, eventdata, handles)
+global data
+global positiveResult
+
+on=get(handles.SGL_fil,'Value');
+k=str2double(get(handles.SG_k,'String'));
+f=str2double(get(handles.SG_f,'String'));
+ 
+Selected=find(~data.removeTraces);
+SelinValid=ismember(find(~data.removeTraces),positiveResult.indexTrace);
+Selected=Selected(SelinValid);
+
+if on
+    if k>=f; warndlg('k must be < f'); set(hObject,'value',0);return
+    elseif mod(f,2)==0; warndlg('f must be odd');set(hObject,'value',0); return
+    else   
+        data.SGFilter(Selected,1)=1;
+
+        for ii=1:length(Selected)
+            
+            data.tracesRetract{Selected(ii),2}=sgolayfilt(data.tracesRetractBackup{Selected(ii), 2},k,f);    
+        
         end
     end
 else
-    data.tracesRetract=data.tracesRetractBackup;
+    
+    data.SGFilter(Selected,1)=0; 
+    for ii=1:length(Selected)
+        data.tracesRetract{Selected(ii),2}=data.tracesRetractBackup{Selected(ii), 2};
+    end    
 end
+
 changeupdatecolor(handles,0)
-% setappdata(handles.fig_FtW,'triggerLc2',1);
-% showTraces(handles)
 
 
 function SG_k_Callback(hObject, eventdata, handles)
@@ -1120,6 +1159,18 @@ set(handles.sliderTraces, 'value', 1);
 showTraces(handles)
 automaticAlign
 
+dd = dialog('Position',[300 300 400 200],'Name','Warning: reference-free alignment');
+
+    txt = uicontrol('Parent',dd,...
+               'Style','text',...
+               'Position',[20 80 360 100],...
+               'String','The reference-free alingment may lead to inapproriate results if applied to heterogeneous datasets: Please use it only with homogeneous dasets.');
+
+    btn = uicontrol('Parent',dd,...
+               'Position',[150 20 70 25],...
+               'String','Close',...
+               'Callback','delete(gcf)');
+
 function menuMarkAllValid_Callback(hObject, eventdata, handles)
 
 global data
@@ -1174,9 +1225,11 @@ function menuNSLikeNV_Callback(hObject, eventdata, handles)
 global positiveResult
 global data
 
-positiveResult.indexTrace=find(~data.removeTraces);
-positiveResult.nTraces=length(positiveResult.indexTrace);
+NotSelected=find(data.removeTraces);
+NotSelecedInValid=ismember(positiveResult.indexTrace,NotSelected);
 
+positiveResult.indexTrace(NotSelecedInValid)=[];
+positiveResult.nTraces=length(positiveResult.indexTrace);
 set(handles.sliderTraces, 'value',1)
 showTraces(handles)
 
@@ -1193,6 +1246,51 @@ hn=figure;
 copyobj(handles.axesMain,hn);
 set(gca,'position',[0.1300 0.1100 0.7750 0.8150]);
 
+function menu_exportExcel_Callback(hObject, eventdata, handles)
+
+global data
+global positiveResult
+
+[FileName,PathName,FilterIndex] = uiputfile('.xls','Save Excel','ExportedData');%Set path
+
+if isequal(FileName,0) || isequal(PathName,0)                              % if the user chooses "Cancel"
+   return
+end
+
+set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
+showTraces(handles)
+
+hh = waitbar(0, 'Please wait, we are writing...');
+
+nTraces = positiveResult.nTraces;                                          %Nr total traces
+
+Alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'...
+    ,'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ'...
+    ,'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'};
+
+xlswrite(FileName,{'Trace num.'},'A1:A1')
+xlswrite(FileName,{'Peaks Lc (m)'},'B1:B1')
+
+for ii=1:nTraces
+    xlswrite(FileName,ii,['A' num2str(ii+1) ':A' num2str(ii+1)])
+    sizeLC=length(data.ExcelExport.LC{ii});
+    xlswrite(FileName,data.ExcelExport.LC{ii},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
+    waitbar(ii/(2*nTraces));
+end
+
+xlswrite(FileName,{'Trace num.'},['A' num2str(nTraces+3) ':A' num2str(nTraces+3)])
+xlswrite(FileName,{'Peak Force (N)'},['B' num2str(nTraces+3) ':B' num2str(nTraces+3)])
+
+for ii=1:nTraces
+    xlswrite(FileName,ii,['A' num2str(nTraces+ii+3) ':A' num2str(nTraces+ii+3)])
+    sizeFC=length(data.ExcelExport.FC{ii});
+    xlswrite(FileName,data.ExcelExport.FC{ii},['B' num2str(nTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(nTraces+ii+3)])
+    waitbar((ii+nTraces)/(2*nTraces));
+end
+
+delete(hh);
+
+disp('Done')
 function auto_multiGauss_Callback(hObject, eventdata, handles)
 
 value=get(hObject,'Checked');
@@ -1583,6 +1681,7 @@ set(handles.sliderTraces, 'Value', indexTrace);
 set(handles.sliderTraces, 'Max', nTraces);
 set(handles.sliderTraces, 'SliderStep', [1 1] / nTraces);
 set(handles.sliderTraces, 'Value', indexTrace);
+set(handles.SGL_fil,'Value',data.SGFilter(indexeffTrace));
 
 [extendTipSampleSeparation,retractTipSampleSeparation,extendVDeflection,...
     retractVDeflection]= getTrace(indexeffTrace, data);
@@ -1926,7 +2025,10 @@ switch(indexView)
             
             %need to find a better formula for the step: depending on the
             %number ot traces and the extension of Lc
-            steps=min(LMP):0.4:max(LMP);
+            
+            
+            stepSize=40/nTraces;  %good parameter to remove point in Lc
+            steps=min(LMP):stepSize:max(LMP);
             nsteps=size(steps,2);
             
             for kk=1:nsteps
@@ -1937,9 +2039,14 @@ switch(indexView)
             end
             LMPextend=LMP;
             for kk=1:nsteps
-                LMPextend(minP(kk))=-1000;
+                LMPextend(minP(kk))=-1000;  %for each step, we remove one Lc
             end
             LMPreduced=LMP(LMPextend>0);
+            
+            if(size(LMPreduced,1) < 0.1*size(LMP,1))
+                LMPreduced=LMP;
+            end
+           
             
             %find the best number od Gaussinas minimizing AIC parameters
             for jj=1:25
@@ -2051,6 +2158,9 @@ switch(indexView)
                 LcMaxPts=data.listLc{iieffTrace}*1E-9;
                 FcMax=data.listFc{iieffTrace};
             end
+            
+            data.ExcelExport.LC{iieffTrace}=LcMaxPts;
+            data.ExcelExport.FC{iieffTrace}=FcMax(FcMax>0);
 
             [tempDeltaLc, tempDeltaLcFc, tempLcDeltaLc] =getDeltaLc...
                 (startLcDeltaLc, LcMaxPts, FcMax, minDeltaLc, maxDeltaLc, xBinDeltaLc);
@@ -2112,7 +2222,7 @@ switch(indexView)
                 
             end
             
-        
+        NrIntGroup_Callback(handles.NrIntGroup,[], handles)
         hold off
         
 %%
@@ -2358,9 +2468,8 @@ switch(indexView)
                 tempLcHistMax = hist(LcMaxPts{iisave}, xBin);
                 tempLcHistMax(tempLcHistMax > 1) = 1;
             end
-            
-            % set globalMatrix
-            globalMatrix(iisave, :) = tempLcHistMax(:);
+                        
+            globalMatrix(iisave, :) = tempLcHistMax(:);                    % set globalMatrix
             
             % update waitbar
             if(mod(ii, round(0.1 * nTraces)) == 0);waitbar(ii / nTraces);end
@@ -2676,6 +2785,9 @@ data.translateLc((end + 1):data.nTraces) = 0;
 % WLC
 data.listLc=cell(data.nTraces,1);
 data.listFc=cell(data.nTraces,1);
+data.ExcelExport.LC=cell(data.nTraces,1);
+data.ExcelExport.FC=cell(data.nTraces,1);
+
 setappdata(handles.fig_FtW,'triggerLc',0)
 setappdata(handles.fig_FtW,'triggerLc2',0)
 setappdata(handles.axesMain, 'selectedLcDeltaLc', []);
@@ -2683,6 +2795,8 @@ setappdata(handles.axesMain, 'selectedLcDeltaLc', []);
 % Grouping
 data.intervals=[];
 data.TracesGroup=ones(data.nTraces,1);
+data.SGFilter=zeros(data.nTraces,1);
+
 
 data.removeTraces((end + 1):data.nTraces) = 0;
 data.saveOnScreen((end + 1):data.nTraces) = 0;
@@ -2889,20 +3003,19 @@ if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
 
 sizeMarker = str2double (get(handles.editSizeMarker, 'string'));
 [TracesGroup]=combo_path_plot(data.GMreduced,sizeMarker);
-Selected=ismember(find(~data.removeTraces),positiveResult.indexTrace);
-data.TracesGroup(Selected)=TracesGroup;
+
+Selected=find(~data.removeTraces);
+SelectedInVald=ismember(find(~data.removeTraces),positiveResult.indexTrace);
+data.TracesGroup(Selected(SelectedInVald))=TracesGroup;
 
 function thomaplot_Callback(hObject, eventdata, handles)
 
 global data
 
 if size(data.GMreduced,2)==0;warndlg('Select a Path Intervlal');return;end
+pushbutton_updategrouping_Callback(handles.pushbutton_updategrouping, eventdata, handles)
 
-%calculate data.LcFc
-set(handles.popupmenuView,'value',10)
+set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
 showTraces(handles)
 
-pushbutton_updategrouping_Callback(handles.pushbutton_updategrouping, eventdata, handles)
 parameters_thoma;
-
-

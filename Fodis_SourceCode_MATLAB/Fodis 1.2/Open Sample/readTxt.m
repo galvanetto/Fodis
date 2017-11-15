@@ -1,27 +1,28 @@
-function [tracesExtend,tracesRetract] = readTxt(files,ii)
+function [tracesExtend,tracesRetract] = readTxt(file)
+
 %Read JPK-force .txt
 tracesExtend = cell(1, 2);
 tracesRetract = cell(1, 2);
 
 % open a file
-fileId = fopen(files{ii}, 'r');
+fileId = fopen(file, 'r');
 % read data from file
-data = textscan(fileId, '%s', 'delimiter', '\n');
-data = data{1};
-data = data(~cellfun('isempty', data'));
+dataLocal = textscan(fileId, '%s', 'delimiter', '\n');
+dataLocal = dataLocal{1};
+dataLocal = dataLocal(~cellfun('isempty', dataLocal'));
 
 % get idx units, columns, startData, endData
-idxAllSegment = find(cellfun('isempty', strfind(data, '# segment: ')) == 0);                %All segment in file
-idxSegmentRetract = find(cellfun('isempty', strfind(data, '# segment: retract')) == 0);     %All Segment retract in file
-idxColumns = find(cellfun('isempty', strfind(data, '# columns: ')) == 0);                   %All Columns in file
-idxUnits = find(cellfun('isempty', strfind(data, '# units: ')) == 0);                       %All Units in file
+idxAllSegment = find(cellfun('isempty', strfind(dataLocal, '# segment: ')) == 0);                %All segment in file
+idxSegmentRetract = find(cellfun('isempty', strfind(dataLocal, '# segment: retract')) == 0);     %All Segment retract in file
+idxColumns = find(cellfun('isempty', strfind(dataLocal, '# columns: ')) == 0);                   %All Columns in file
+idxUnits = find(cellfun('isempty', strfind(dataLocal, '# units: ')) == 0);                       %All Units in file
 
 %Only the one after the segment beginning
 idxColumnsValid=find(idxColumns>idxSegmentRetract(1));                     %Find columns of the first segment retract
 idxUnitsValid=find(idxUnits>idxSegmentRetract(1));                         %Find units of the first segment retract
 idxNextSegment=find(idxAllSegment>idxSegmentRetract(1));                   %Find beginning of the segment after segment retract
 
-idxNumberData = find(cellfun('isempty', strfind(data, '#')));              %Not Header-->data
+idxNumberData = find(cellfun('isempty', strfind(dataLocal, '#')));              %Not Header-->data
 idxStartData=find(idxNumberData>idxSegmentRetract(1));                     %Start data of segment retract      
 
 if ~isempty(idxColumnsValid)
@@ -42,19 +43,19 @@ if ~isempty(idxColumnsValid)
     end
     
 else %Not found any column
-    disp(['Bad file skipped (invalid format, cannot find retract Section): ' files{ii}]);
+    disp(['Bad file skipped (invalid format, cannot find retract Section): ' file]);
     fclose(fileId);
     return;
 
 end
 
-columnsAvailable=data{idxColumnsRetract};
+columnsAvailable=dataLocal{idxColumnsRetract};
 indxStartListColumns=strfind(columnsAvailable,':');
 columnsAvailable=columnsAvailable(indxStartListColumns+1:end);             %Column available for retract
 
 columnsName = textscan(columnsAvailable, '%s');                            %Devide the name
 if isempty(columnsName)
-    disp(['Bad file skipped (invalid format, cannot find available Column): ' files{ii}]);
+    disp(['Bad file skipped (invalid format, cannot find available Column): ' file]);
     fclose(fileId);
     return;
 end
@@ -67,9 +68,9 @@ end
 % #6 height
 
 %% search for available name
-columnsPossibleName={'vDeflection','tipSampleSeparation','smoothedCapacitiveSensorHeight',...
+columnsPossibleName={'vDeflection','tipSampleSeparation','verticalTipPosition','smoothedCapacitiveSensorHeight',...
     'capacitiveSensorHeight','measuredHeight','height'};
-IndexColumnAvailable=zeros(2,6);
+IndexColumnAvailable=zeros(2,length(columnsPossibleName));
 
 for jj=1:length(columnsName{1})
     valueInList = find(cellfun('isempty', strfind(columnsPossibleName, columnsName{1}{jj})) == 0);
@@ -81,7 +82,7 @@ end
 %% Search for Vdeflection
 indexYValue=0;
 if (IndexColumnAvailable(1,1)==0)
-    disp(['Cannot Find VDeflection in File: ' files{ii}]);
+    disp(['Cannot Find VDeflection in File: ' file]);
     fclose(fileId);
     return;
 else
@@ -94,14 +95,14 @@ indexXValue=0;
 validIndex=find(IndexColumnAvailable(1,2:end));
 
 if isempty(validIndex)
-     disp(['Not Found Any valid format in File: ' files{ii}]); 
+     disp(['Not Found Any valid format in File: ' file]); 
      return;
 else
     indexXValue=IndexColumnAvailable(2,1+validIndex(1));
-    if validIndex(1)~=2; disp(['Tip Sample Separation not found in File: ' files{ii}]);end
+    disp(['Loaded Channel: ' columnsPossibleName{1+validIndex(1)}]);
 end
 
-tempData = data(idxStartDataRetract:1:idxEndDataRetract);                  %Extract numeric data of retract
+tempData = dataLocal(idxStartDataRetract:1:idxEndDataRetract);                  %Extract numeric data of retract
 NumericMatrix=cell2mat(cellfun(@str2num,tempData,'un',0));                 %Put all data in a matrix
 
 tempVDeflaction =NumericMatrix(:,indexYValue);                             %Extract Vdeflection                              
