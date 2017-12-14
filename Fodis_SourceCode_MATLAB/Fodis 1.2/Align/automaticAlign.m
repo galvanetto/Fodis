@@ -293,8 +293,13 @@ dataSingleAlign.refor=zeros(1,size(traces,1));
 X=traces(:,1);                                                  %%Cell array with all the X of the traces of ll group
 Y=traces(:,2);                                                  %%Cell array with all the Y of the traces of ll group
 
+h = waitbar(0);
+
 for kk=1:size(traces,1)                                                    %Iterate for each trace of the group
     
+    set(h,'Name',['Align Trace ' num2str(kk) ' of ' num2str(size(traces,1))])
+    waitbar(kk/size(traces,1),h)
+
     Xs=X{kk};                                                              %X value of the trace
     Ys=Y{kk};                                                              %Y trace of the group
     if flipflag;Ys=-Ys;end
@@ -337,6 +342,8 @@ for kk=1:size(traces,1)                                                    %Iter
     
 end
 
+delete(h);
+ 
 %Extract Trace 
 indexTrace = round(get(handles.slider_algnmnt, 'value'));                  %Slider Position
 indexeffTrace=Selected(indexTrace);                                        %Actual trace
@@ -360,6 +367,9 @@ end
 
 data.translateLc(Selected)=nmdelay;
 changeupdatecolor(mainHandles,0)
+
+hf=findobj('Name','automaticAlign');
+close(hf);
 
 function push_align_Callback(hObject, eventdata, handles)
 
@@ -579,14 +589,21 @@ axes(handles.axes_autalgn2)
 cla;
 
 % Reference to align to zero
-x1=retractTipSampleSeparation;
+tss=retractTipSampleSeparation;
+x1=tss;
 x1 = x1((F<(-50*1e-12) & F>(-400*1e-12)));                   %condition
 
 if isempty(x1)
     overzero=find(F>0);
-    zero=x1(overzero(1));
+    
+    if isempty(overzero)
+        zero=mean(tss);                        %if no zero is found, zero is the average value
+    else
+        zero=tss(overzero(1));                 %zero to first positive value
+    end
+    
 else
-    zero=mean(x1);
+    zero=mean(x1);                             %ideal zero
 end
 
 stepbin=str2double(get(handles.editStepBin,'string'))*1E-9;

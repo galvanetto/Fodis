@@ -1034,13 +1034,20 @@ for ii = 1:1:nTraces
     % Reference to align to zero
     x1=tss;
     F1=F;
-    x1 = x1((F1<(-50*1e-12) & F1>(-400*1e-12)));                   %condition
+    x1 = x1((F1<(-50*1e-12) & F1>(-500*1e-12)));                   %condition
+    
     
     if isempty(x1)
         overzero=find(F1>0);
-        zero=x1(overzero(1));
-    else
-        zero=mean(x1);
+        
+        if isempty(overzero)
+            zero=mean(tss);                        %if no zero is found, zero is the average value
+        else
+            zero=tss(overzero(1));                 %zero to first positive value
+        end
+                
+    else 
+        zero=mean(x1);                             %ideal zero
     end
 
     data.tracesRetract{ii,1}=data.tracesRetract{ii,1}-zero;
@@ -1063,7 +1070,7 @@ catch ME
                'Callback','delete(gcf)');
     
     beep
-    delete(h);
+    
 end
 
 data.translateLc=zeros(data.nTraces,1);
@@ -1094,7 +1101,12 @@ for ii = 1:1:nTraces
     F1=F;
     
     overzero=find(F1>0);
-    zero=x1(overzero(1));
+    
+    if isempty(overzero)
+        zero=mean(tss);                        %if no zero is found, zero is the average value
+    else
+        zero=tss(overzero(1));                 %zero to first positive value
+    end
     
     data.tracesRetract{ii,1}=data.tracesRetract{ii,1}-zero;
 end
@@ -1257,6 +1269,8 @@ if isequal(FileName,0) || isequal(PathName,0)                              % if 
    return
 end
 
+fullPath=fullfile(PathName,FileName);
+
 set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
 showTraces(handles)
 
@@ -1268,23 +1282,23 @@ Alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q',
     ,'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ'...
     ,'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'};
 
-xlswrite(FileName,{'Trace num.'},'A1:A1')
-xlswrite(FileName,{'Peaks Lc (m)'},'B1:B1')
+xlswrite(fullPath,{'Trace num.'},'A1:A1')
+xlswrite(fullPath,{'Peaks Lc (m)'},'B1:B1')
 
 for ii=1:nTraces
-    xlswrite(FileName,ii,['A' num2str(ii+1) ':A' num2str(ii+1)])
+    xlswrite(fullPath,ii,['A' num2str(ii+1) ':A' num2str(ii+1)])
     sizeLC=length(data.ExcelExport.LC{ii});
-    xlswrite(FileName,data.ExcelExport.LC{ii},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
+    xlswrite(fullPath,data.ExcelExport.LC{ii},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
     waitbar(ii/(2*nTraces));
 end
 
-xlswrite(FileName,{'Trace num.'},['A' num2str(nTraces+3) ':A' num2str(nTraces+3)])
-xlswrite(FileName,{'Peak Force (N)'},['B' num2str(nTraces+3) ':B' num2str(nTraces+3)])
+xlswrite(fullPath,{'Trace num.'},['A' num2str(nTraces+3) ':A' num2str(nTraces+3)])
+xlswrite(fullPath,{'Peak Force (N)'},['B' num2str(nTraces+3) ':B' num2str(nTraces+3)])
 
 for ii=1:nTraces
-    xlswrite(FileName,ii,['A' num2str(nTraces+ii+3) ':A' num2str(nTraces+ii+3)])
+    xlswrite(fullPath,ii,['A' num2str(nTraces+ii+3) ':A' num2str(nTraces+ii+3)])
     sizeFC=length(data.ExcelExport.FC{ii});
-    xlswrite(FileName,data.ExcelExport.FC{ii},['B' num2str(nTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(nTraces+ii+3)])
+    xlswrite(fullPath,data.ExcelExport.FC{ii},['B' num2str(nTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(nTraces+ii+3)])
     waitbar((ii+nTraces)/(2*nTraces));
 end
 
@@ -1839,7 +1853,7 @@ switch(indexView)
         
         bar(xBin*1E9, LcHist,1,'BaseValue', 0, 'FaceColor', [0 0 0], 'EdgeColor', [0.8 .8 .8]);
         hold on
-        stairs(xBin*1E9, sgolayfilt(LcHist,2,5) );
+        
         bar(xBin*1E9, (LcHistMax),'FaceColor', [1 0 0], 'EdgeColor',  [0.8 0 0]);
         
         xlim([data.scaleMinTss data.scaleMaxTss]);
@@ -2515,7 +2529,7 @@ switch(indexView)
             hold on
             % Superimpose traces plot
             plot((retractTipSampleSeparation + translateLc) * 1E9, retractVDeflection * 1E12,...
-                '.',  'MarkerSize', sizeMarker, 'color', rgb(ii, :, :));
+                '.',  'MarkerSize', sizeMarker, 'color', 'k');
             
         end
         
@@ -2581,7 +2595,7 @@ switch(indexView)
             
             % Superimpose Lc Plot
             hold on
-            plot(Lc * 1E9, Fc * 1E12, '.', 'MarkerSize', sizeMarker, 'color', rgb(ii, :, :));
+            plot(Lc * 1E9, Fc * 1E12, '.', 'MarkerSize', sizeMarker, 'color', 'k');
             
         end
         
