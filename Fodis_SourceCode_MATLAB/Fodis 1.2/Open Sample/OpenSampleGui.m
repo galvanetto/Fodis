@@ -188,7 +188,7 @@ files = {files.name};
 
 if (indexpop==4) && ~isempty(data.folder)
     
-    if ispc
+    if ispc && ~isdeployed
         
         filesSecondChoice = dir(data.folder);
         filesSecondChoice = {filesSecondChoice.name};
@@ -229,7 +229,7 @@ end
 
 if ~indexPC
     
-    set(handles.text_nrfile,'String','Read Bruker file only supported in Windows OS')
+    set(handles.text_nrfile,'String','Read Bruker file only supported in non-deployed versions in Windows OS')
     set(handles.uipanel_nrtrace,'HighlightColor',[162 20 47]/255)
     set(handles.uipanel_nrtrace,'ForegroundColor',[162 20 47]/255)
     set(handles.pushbutton_import,'Enable','off')
@@ -367,8 +367,9 @@ rmpath(genpath(data.folder));
 
 if sum(onFolderFile)<nFiles
     
-       Mess = msgbox({['The import failes in ' num2str(nFiles- sum(onFolderFile)) ' files.'];['Please check the Command Window for details'...
-       ];['While the problem persists, contact fodis.help@gimail.com']},'modal');
+       Mess = msgbox({['The import failes in ' num2str(nFiles- sum(onFolderFile)) ' files.'];['--------------------'];...
+           ['Please check the Command Window for details'...
+       ];['--------------------'];['While the problem persists, contact fodis.help@gimail.com']},'modal');
     
 end
 
