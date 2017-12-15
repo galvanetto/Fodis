@@ -1,12 +1,12 @@
 Open Fodis_MAC folder
 
-Run >> MyAppInstaller_web.app <<
+Run the Web Installer >> MyAppInstaller_web.app <<
 It will download a free version of the MATLAB_RUNTIME necessary to run Fodis. 
 
 If a security message pops up, go to:
 System preferences > Security privacy > General.  Check  >>Allow apps downloaded from everywhere<<
 
-Now run >> MyAppInstaller_web.app <<
+So, run it >> MyAppInstaller_web.app <<
 It will take few minutes to download and ~3 GB of free space
 
 At the end of the installation run >> Fodis.app <<

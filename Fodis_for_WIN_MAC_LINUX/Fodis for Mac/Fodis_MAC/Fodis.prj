@@ -1,0 +1,222 @@
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration file="/Users/andreapedroni/Desktop/Fodis Mac FINAL/Fodis.prj" location="/Users/andreapedroni/Desktop/Fodis Mac FINAL" name="Fodis" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>Fodis</param.appname>
+    <param.icon>${PROJECT_ROOT}/Fodis_resources/icon.icns</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}/Fodis_resources/icon_48.png</file>
+      <file>${PROJECT_ROOT}/Fodis_resources/icon_32.png</file>
+      <file>${PROJECT_ROOT}/Fodis_resources/icon_24.png</file>
+      <file>${PROJECT_ROOT}/Fodis_resources/icon_16.png</file>
+    </param.icons>
+    <param.version>1.2</param.version>
+    <param.authnamewatermark />
+    <param.email />
+    <param.company />
+    <param.summary />
+    <param.description />
+    <param.screenshot />
+    <param.guid />
+    <param.installpath.string>/Fodis/</param.installpath.string>
+    <param.installpath.combo>option.installpath.systemwideapp</param.installpath.combo>
+    <param.logo />
+    <param.install.notes>In the following directions, replace MCR_ROOT by the directory where the MATLAB Runtime is installed on the target machine.
+
+If the environment variable DYLD_LIBRARY_PATH is undefined, set it to the concatenation of the following strings:
+
+    MCR_ROOT/v91/runtime/maci64:
+    MCR_ROOT/v91/sys/os/maci64:
+    MCR_ROOT/v91/bin/maci64
+
+If it is defined, set it to the concatenation of these strings:
+
+    ${LD_LIBRARY_PATH}: 
+    MCR_ROOT/v91/runtime/maci64:
+    MCR_ROOT/v91/sys/os/maci64:
+    MCR_ROOT/v91/bin/maci64</param.install.notes>
+    <param.target.install.notes />
+    <param.intermediate>${PROJECT_ROOT}/Fodis/for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}/Fodis/for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}/Fodis/for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}/Fodis</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
+    <param.embed.ctf>true</param.embed.ctf>
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.support.packages />
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>false</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.windows.command.prompt>false</param.windows.command.prompt>
+    <param.create.log>true</param.create.log>
+    <param.log.file>LOG.txt</param.log.file>
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.summary />
+      <param.description />
+      <param.screenshot />
+      <param.guid />
+      <param.installpath.string />
+      <param.installpath.combo />
+      <param.logo />
+      <param.target.install.notes />
+      <param.intermediate />
+      <param.files.only />
+      <param.output />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
+      <param.embed.ctf />
+      <param.target.type />
+      <param.support.packages />
+      <param.web.mcr />
+      <param.package.mcr />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.package.mcr.name />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+    </unset>
+    <fileset.main>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Fodis.m</file>
+    </fileset.main>
+    <fileset.resources />
+    <fileset.package />
+    <fileset.depfun>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/Trace2HistCustom.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/alignfunc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/alignfuncred.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/automaticAlign.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/automaticAlign.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/automaticAlign_st2.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/automaticAlign_st2.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/crsscrlweight.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/manualAlign.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Align/manualAlign.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Filter/changeupdatecolorFilter.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Filter/filterG.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Filter/filterG.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Filter/filterGnoHIST.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Filter/filterGnoHIST.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Fodis.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/GUI function/changeGUI.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/GUI function/changeupdatecolor.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/GUI function/exportTraces.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/GUI function/gaussfit.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Help/Contributors.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Help/Contributors.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Help/get_help_here.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Help/get_help_here.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/OpenSampleGui.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/OpenSampleGui.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/classifyTrace.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/extractFormat.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/extractGeneralHeaderInformation.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/extractParameterValue.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/extractSegmentHeaderInformation.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/extractSharedHeaderInformation.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/readAcquisitionParameter.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/readBruker.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/readBrukerTxt.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/readJPK.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Open Sample/readTxt.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/Lc2GlobRed.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/combo_path_plot.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/densityPathPlot.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/parameters_path.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/parameters_path.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/parameters_thoma.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/parameters_thoma.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/path_plot.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Path Analisys/thoma1_plot.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/distinguishable_colors.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/gaussian1D.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/movingstd.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/plotGaussian.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/plotGroupBar.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/plotLcVL.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/plotWLCFit.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/rangeFc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/rangedeltaLc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/smoothhist2D.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Plot Function/tracepoint2FcLc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/brush2.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/corr2selection.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/corr2selection.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/fingerprint_ROI.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/fingerprint_ROI.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Selection/trace2matrix2.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Tools/absolute2tss.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Tools/absolute2tss.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Tools/heterogeneity.fig</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/Tools/heterogeneity.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/convertInExponential.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/fitPersistanceLength.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getContourLength.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getDeltaLc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getFFromLc.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getFitTrace.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getLcParameters.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getMaxLc3.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getParams.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getProfilePeaks.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/getTrace.m</file>
+      <file>/Users/andreapedroni/Documents/MATLAB/Fodis 1.2/setParams.m</file>
+    </fileset.depfun>
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}/Fodis/for_testing" name="run_Fodis.sh" optional="false">/Users/andreapedroni/Desktop/Fodis Mac FINAL/Fodis/for_testing/run_Fodis.sh</file>
+      <file location="${PROJECT_ROOT}/Fodis/for_testing" name="Fodis.app" optional="false">/Users/andreapedroni/Desktop/Fodis Mac FINAL/Fodis/for_testing/Fodis.app</file>
+      <file location="${PROJECT_ROOT}/Fodis/for_testing" name="splash.png" optional="false">/Users/andreapedroni/Desktop/Fodis Mac FINAL/Fodis/for_testing/splash.png</file>
+      <file location="${PROJECT_ROOT}/Fodis/for_testing" name="readme.txt" optional="true">/Users/andreapedroni/Desktop/Fodis Mac FINAL/Fodis/for_testing/readme.txt</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB_R2016b.app</root>
+      <toolboxes>
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabcoder" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="embeddedcoder" />
+      </toolboxes>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.13.2</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
