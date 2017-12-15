@@ -63,6 +63,8 @@ rmpath(genpath('/home/aperissinotto/Documents/SISSA/Galva/Fodis/Tracce prova'));
 % UIWAIT makes Fodis wait for user response (see UIRESUME)
 % uiwait(handles.fig_FtW);
 
+                                         
+    
 %Define global variable for fingerprint_ROI (ROI points)
 global nsel xsel ysel
 nsel=[];
@@ -1377,6 +1379,8 @@ end
 if size(tracesExtend,1)>=1
     updateTraces(handles, hObject, eventdata, '', tracesExtend, tracesRetract);
     showTraces(handles)
+    find_trace_Callback(handles.find_trace, eventdata, handles);
+
 end
 
 function menuLoadSession_Callback(hObject, eventdata, handles)

@@ -4,7 +4,7 @@ if strcmp(symbol,'m')
     
     value=10^-3;
     
-elseif strcmp(symbol,'u')
+elseif strcmp(symbol,'u') || strcmp(symbol,'µ')
     
     value=10^-6;
 

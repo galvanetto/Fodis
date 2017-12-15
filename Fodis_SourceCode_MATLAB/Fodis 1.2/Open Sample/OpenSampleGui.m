@@ -174,6 +174,7 @@ popupmenu_extension_Callback(handles.popupmenu_extension,eventdata, handles)
 function popupmenu_extension_Callback(hObject, eventdata, handles)
 global data
 
+indexPC=1;
 intexstr={'.txt','.jpk-force','.txt','.spm'};
 indexpop=get(hObject,'Value');
 extsel=intexstr{indexpop};
@@ -184,6 +185,33 @@ inputCommand = fullfile([num2str(data.folder), strcat('/*',extsel)]);
 files = dir(inputCommand);
 % extract a column cell array with filenames (excluding foldernames)
 files = {files.name};
+
+if (indexpop==4) && ~isempty(data.folder)
+    
+    if ispc
+        
+        filesSecondChoice = dir(data.folder);
+        filesSecondChoice = {filesSecondChoice.name};
+        filesGood=zeros(1,length(filesSecondChoice));
+        
+        for ii=1:length(filesSecondChoice)
+            
+            [dummy1,dummy2,ext] = fileparts(filesSecondChoice{ii});
+            numberOfExtDigits = sum(isstrprop(ext,'digit'));
+            
+            if numberOfExtDigits>=2
+                filesGood(ii)=1;
+            end
+        end
+        
+        filesSecondChoice=filesSecondChoice(logical(filesGood));
+        files=[filesSecondChoice,files];
+        
+    else
+        indexPC=0;       
+    end
+end
+
 nrTrace=length(files);
 % check if the input is empty
 if(isempty(files))
@@ -191,6 +219,7 @@ if(isempty(files))
     set(handles.uipanel_nrtrace,'HighlightColor',[162 20 47]/255)
     set(handles.uipanel_nrtrace,'ForegroundColor',[162 20 47]/255)
     set(handles.pushbutton_import,'Enable','off')
+    
 else
     set(handles.text_nrfile,'String',['There are ' num2str(nrTrace) ' ' extsel ' file in the folder selected'])
     set(handles.uipanel_nrtrace,'HighlightColor',[119 172 48]/255)
@@ -198,6 +227,13 @@ else
     set(handles.pushbutton_import,'Enable','on')
 end
 
+if ~indexPC
+    
+    set(handles.text_nrfile,'String','Read Bruker file only supported in Windows OS')
+    set(handles.uipanel_nrtrace,'HighlightColor',[162 20 47]/255)
+    set(handles.uipanel_nrtrace,'ForegroundColor',[162 20 47]/255)
+    set(handles.pushbutton_import,'Enable','off')
+end
 
 
 
@@ -226,6 +262,27 @@ inputCommand = fullfile([num2str(data.folder), strcat('/*',extsel)]);
 files = dir(inputCommand);
 % extract a column cell array with filenames (excluding foldernames)
 files = {files.name};
+
+if (indexpop==4)
+    
+    filesSecondChoice = dir(data.folder);
+    filesSecondChoice = {filesSecondChoice.name};
+    filesGood=zeros(1,length(filesSecondChoice));
+    
+    for ii=1:length(filesSecondChoice)
+    
+        [dummy1,dummy2,ext] = fileparts(filesSecondChoice{ii});
+        numberOfExtDigits = sum(isstrprop(ext,'digit'));
+        
+        if numberOfExtDigits>=2
+            filesGood(ii)=1;
+        end
+    end
+    
+    filesSecondChoice=filesSecondChoice(logical(filesGood));
+    files=[filesSecondChoice,files];
+end
+
 % number of files
 nFiles = length(files);
 
@@ -241,6 +298,8 @@ waitbarFactor = ceil(0.05 * nFiles);
 % check waitbar factor
 if(waitbarFactor == 0);waitbarFactor = 1;end
 
+onFolderFile=zeros(1,nFiles);
+
 % for each file
 for ii = 1:1:nFiles
     try
@@ -253,6 +312,7 @@ for ii = 1:1:nFiles
         elseif indexpop==4
             [temp.tracesExtend(ii,:),temp.tracesRetract(ii,:)] = readBruker(files{ii});    
         end
+        onFolderFile(ii)=1;
     catch e
         disp(['Pass to the next File.' files{ii} ' not acquired']);
         continue;
@@ -304,6 +364,14 @@ temp.tracesRetract(all(cellfun('isempty',temp.tracesRetract),2),:) = [];
 delete(h)
 %Remove Path
 rmpath(genpath(data.folder));
+
+if sum(onFolderFile)<nFiles
+    
+       Mess = msgbox({['The import failes in ' num2str(nFiles- sum(onFolderFile)) ' files.'];['Please check the Command Window for details'...
+       ];['While the problem persists, contact fodis.help@gimail.com']},'modal');
+    
+end
+
 
 close(handles.figure_opensample);
 

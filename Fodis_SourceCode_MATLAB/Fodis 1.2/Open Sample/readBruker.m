@@ -4,31 +4,33 @@ function [tracesExtend,tracesRetract] = readBruker(file)
 tracesExtend = cell(1, 2);
 tracesRetract = cell(1, 2);
 
-% open the file normally
-fileId = fopen(file, 'r');
-% read data from file
-data = textscan(fileId, '%s', 'delimiter', '\n');
-data = data{1};
-data = data(~cellfun('isempty', data'));
 
-firstCharacterList = cellfun(@(s)s(1),data,'UniformOutput',false);
+NSMU = NSMatlabUtilities();
+NSMU.Open(which(file));
+[xTrace, xRetract, yTrace, yRetract, xLabel, yLabel] = NSMU.CreateForceZPlot(1, NSMU.FORCE, 1);
 
-headerIndex = cellfun('isempty', strfind(firstCharacterList, '\')) == 0;                %All segment in file
-headerString=data(headerIndex);
-headerNumber=length(headerString);
-dataString=data(~headerIndex);
+key1='(';
+key2=')';
 
-fidtss=fopen(file,'r','b','UTF-8');
-C = textscan(fidtss, '%u16' ,4000,'HeaderLines',headerNumber,'Delimiter',',');
+idx1x=strfind(xLabel,key1);
+idx2x=strfind(xLabel,key2);
+unitX=xLabel(idx1x+1:idx2x-1);
 
-data=fread(fidtss,'float32');
 
-tracesExtend{1,1} = data{:,1}'*1e-9;
-tracesExtend{1,2}= data{:,2}'*1e-9;
-tracesRetract{1,1} = data{:,1}'*1e-9;
-tracesRetract {1,2}= data{:,2}'*1e-9;
+idx1y=strfind(yLabel,key1);
+idx2y=strfind(yLabel,key2);
+unitY=yLabel(idx1y+1:idx2y-1);
 
-fclose(fileId);
+unitMoltiplicatorX=convertInExponential(unitX(1));
+unitMoltiplicatorY=convertInExponential(unitY(1));
+
+tracesExtend{1,1} = xTrace'*unitMoltiplicatorX;
+tracesExtend{1,2}= yTrace'*unitMoltiplicatorY;
+tracesRetract{1,1} = xRetract'*unitMoltiplicatorX;
+tracesRetract {1,2}= yRetract'*unitMoltiplicatorY;
+
+disp(xLabel);
+disp(yLabel);
 
 % sweep corrupted files if they are still opened
 fclose('all');

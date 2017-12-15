@@ -28,7 +28,7 @@ if (headerNumber==0)
     numericValue=cell2mat(cellfun(@str2num,numericData,'un',0));  
     numericValueScaled=numericValue;
     
-    for ii=1:length(headerUnit);
+    for ii=1:length(headerUnit)
             
        
         unitValue=headerUnitActual{ii};
@@ -56,7 +56,8 @@ else
     headerNewtonIndex = cellfun('isempty', strfind(headerUnitActual, 'N_')) == 0;                
     headerMeterIndex = cellfun('isempty', strfind(headerUnitActual, 'm_')) == 0;                
     headerDeflectionIndex = cellfun('isempty', strfind(headerUnitActual, 'Defl')) == 0;                
-    headerPositionIndex = cellfun('isempty', strfind(headerUnitActual, 'PF_Z_Sensor')) == 0;                
+    headerPositionIndex = cellfun('isempty', strfind(headerUnitActual, 'Z_')) == 0; 
+    headerSensIndex = cellfun('isempty', strfind(headerUnitActual, 'ensor')) == 0;
 
     ColumnX=find(headerRetractIndex & headerMeterIndex & headerPositionIndex);
     ColumnY=find(headerRetractIndex & headerNewtonIndex & headerDeflectionIndex);
@@ -64,6 +65,16 @@ else
     if isempty(ColumnY)
         ColumnY=find(headerRetractIndex & headerMeterIndex & headerDeflectionIndex);
     end
+    
+    if isempty(ColumnY)
+        ColumnY=find(headerRetractIndex & headerDeflectionIndex);
+    end
+    
+    if isempty(ColumnX)
+        ColumnY=find(headerRetractIndex & headerSensIndex);
+    end
+    
+    
     
     headerSplitX=strsplit(headerUnitActual{ColumnX(1)},'_');
     headerUnitX=headerSplitX{end-1};
