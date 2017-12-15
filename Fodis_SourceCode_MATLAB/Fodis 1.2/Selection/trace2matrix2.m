@@ -23,7 +23,7 @@ y2=y2+1;
 x2=x2+1;
 
 
-Mat = zeros(pN,nm);
+Mat = zeros(round(pN),round(nm));
 
 for ii=1:size(x2,2) 
     

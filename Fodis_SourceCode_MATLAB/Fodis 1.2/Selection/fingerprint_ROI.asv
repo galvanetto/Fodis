@@ -319,9 +319,9 @@ ylim([0 abs(data.scaleMaxF)]); ylabel('F (pN)');
 
 if data.scaleMaxTss<0 || data.scaleMaxF<0
    beep
-    Mess = msgbox({['Your trace is not in the correct position .'];['(peaks in the positive part, contact point in the left)'...
+    Mess = msgbox({['Your trace is not in the correct position (pea.'];['There may be a problem with data dimensions, baseline subtraction or TSS transformation.'...
        ];['--------------------'];['Please go to Tools>Absolute height to TSS  and try to adjust the trace.']...
-       ;['There may be a problem with data dimensions, baseline subtraction or TSS transformation.']});
+       ;['You may check the Units and the Metric Prefix of the imported files.']});
 end
 
 set(gca,'FontSize',7)
