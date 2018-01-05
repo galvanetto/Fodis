@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 14-Nov-2017 19:21:47
+% Last Modified by GUIDE v2.5 03-Jan-2018 21:03:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2096,6 +2096,7 @@ switch(indexView)
                 plot(xgauss,ygauss(ll,:),'LineWidth',2)
             end
             h=area(xgauss,sum(ygauss),'EdgeColor', 'none');
+            data.MultyGauss=[xgauss; sum(ygauss)]';
             alpha(h,0.2)  
             
             
@@ -2999,7 +3000,7 @@ editTraceMaxF_Callback(hObject, eventdata, handles);
 
 if ( abs(min(tss)*1e9) > 2000 | abs(max(tss)*1e9) > 2000 | abs(min(F)*1e12) > 2000 | abs(max(F)*1e12) > 2000 )
     Mess = msgbox({['Your trace is very large or far from the origin.'];['There may be a problem with data dimensions, baseline subtraction or TSS transformation.'...
-       ];['--------------------'];['Please go to Tools>Absolute height to TSS  and try to adjust the trace.']...
+       ];['--------------------'];['Please go to Tools>Pre-Processing  and try to adjust the trace.']...
        ;['You may check the Units and the Metric Prefix of the imported files.']});
     
     
@@ -3040,3 +3041,33 @@ set(handles.popupmenuView,'value',10)                                      %Move
 showTraces(handles)
 
 parameters_thoma;
+
+
+
+function pushbutton_intervals_Callback(hObject, eventdata, handles)
+%set string for grouping
+
+global data
+
+set(handles.popupmenuView,'value',9)
+if strcmp(get(handles.auto_multiGauss,'checked'),'off')
+    set(handles.auto_multiGauss,'checked','on');
+end
+showTraces(handles)
+
+x=data.MultyGauss(:,1);
+y=data.MultyGauss(:,2);
+
+%find maxima and minima to find the intervals (sum a parabola to find
+%minima also in the extremes
+
+[pksM,locsM]=findpeaks(y);
+
+parabola=x.*(x-2*(x(locsM(1))))*-1e-6;
+
+
+[pksm,locsm]=findpeaks(-y+parabola);
+
+data.IntervalExteremes=x(locsm);
+
+

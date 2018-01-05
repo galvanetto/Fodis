@@ -26,7 +26,7 @@ function varargout = absolute2tss(varargin)
 
 % Edit the above text to modify the response to help absolute2tss
 
-% Last Modified by GUIDE v2.5 26-Oct-2017 16:51:06
+% Last Modified by GUIDE v2.5 04-Jan-2018 14:06:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -203,8 +203,8 @@ if get(handles.ignoreSpring, 'Value')==0
     ydata=ydata * str2double(get(handles.spring, 'string'));
 end
 
-%BASELINE SUB
-if get(handles.ignoreBaseline, 'Value')==0
+%BASELINE SUB (no linear fit)
+if (get(handles.ignoreBaseline, 'Value')==0 && get(handles.checkbox_fit, 'Value')==0)
     
     mx=min(xdata);
     Mx=max(xdata);
@@ -222,6 +222,52 @@ if get(handles.ignoreBaseline, 'Value')==0
     
     %bring to zero the baseline
     ydata=ydata-yto0;
+    
+    if get(handles.ignoreContact, 'Value')==1
+        %for plot of the patch only, recalculate the limits
+        mx=min(xdata);
+        Mx=max(xdata);
+        my=min(ydata);
+        My=max(ydata);
+        
+        xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
+        xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
+        
+        patch([xmin_Mx xmin_Mx xmax_Mx xmax_Mx], 20*[My my my My] , 'red', 'FaceAlpha',.5);
+    end
+    
+end
+
+%BASELINE SUB (linear fit)
+if (get(handles.ignoreBaseline, 'Value')==0 && get(handles.checkbox_fit, 'Value')==1)
+    
+    mx=min(xdata);
+    Mx=max(xdata);
+    my=min(ydata);
+    My=max(ydata);
+
+    xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
+    xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
+    
+    %indeces of the interval
+    idx_xtofit=find(xdata>xmin_Mx & xdata<xmax_Mx);
+    xtofit=xdata(idx_xtofit);
+    
+    ytofit=ydata(idx_xtofit);
+    
+    %transpose the vectors for fitting
+    xtofit=xtofit';
+    ytofit=ytofit';
+    
+    Xtofit=[ones(length(xtofit),1) xtofit];
+    
+    b=Xtofit\ytofit;  %b(1) is the q, b(2) is the m   y=mx+q
+    
+    corr=b(1)+b(2)*xdata;
+    
+    
+    %bring to zero the baseline
+    ydata=ydata-corr;
     
     if get(handles.ignoreContact, 'Value')==1
         %for plot of the patch only, recalculate the limits
@@ -376,8 +422,9 @@ for kk=1:nTraces
         ydata=ydata * str2double(get(handles.spring, 'string'));
     end
     
-    %BASELINE SUB
-    if get(handles.ignoreBaseline, 'Value')==0
+   
+    %BASELINE SUB (no linear fit)
+    if (get(handles.ignoreBaseline, 'Value')==0 && get(handles.checkbox_fit, 'Value')==0)
         
         mx=min(xdata);
         Mx=max(xdata);
@@ -395,8 +442,43 @@ for kk=1:nTraces
         
         %bring to zero the baseline
         ydata=ydata-yto0;
+
     end
+    
+    %BASELINE SUB (linear fit)
+    if (get(handles.ignoreBaseline, 'Value')==0 && get(handles.checkbox_fit, 'Value')==1)
         
+        mx=min(xdata);
+        Mx=max(xdata);
+        my=min(ydata);
+        My=max(ydata);
+        
+        xmin_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmin, 'string')));
+        xmax_Mx= mx + ( (Mx-mx) * 0.01 * str2double(get(handles.xmax, 'string')));
+        
+        %indeces of the interval
+        idx_xtofit=find(xdata>xmin_Mx & xdata<xmax_Mx);
+        xtofit=xdata(idx_xtofit);
+        
+        ytofit=ydata(idx_xtofit);
+        
+        %transpose the vectors for fitting
+        xtofit=xtofit';
+        ytofit=ytofit';
+        
+        Xtofit=[ones(length(xtofit),1) xtofit];
+        
+        b=Xtofit\ytofit;  %b(1) is the q, b(2) is the m   y=mx+q
+        
+        corr=b(1)+b(2)*xdata;
+        
+        
+        %bring to zero the baseline
+        ydata=ydata-corr;
+
+    end
+    
+    
     %CONTACT POINT
     if get(handles.ignoreContact, 'Value')==0
         
@@ -538,3 +620,7 @@ function editmultiplier_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+function checkbox_fit_Callback(hObject, eventdata, handles)
+showTrace(handles)

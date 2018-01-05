@@ -417,15 +417,29 @@ end
 function pushButton_finalAlignReferenceBinarized_Callback(hObject, eventdata, handles)
 %% Align to reference binazrized
 global data
+
+hh = waitbar(0, 'Please wait...');
+
 Reference=data.Alignment.MotherOfRef;
 finalAlign(handles,Reference)
+
+waitbar(0.9);
+delete(hh);
+Mess = msgbox({['The selection has been aligned'];['---------------------------------'];['Go to the Main GUI and click Update Traces to see the results']});
 
 
 function pushButton_finalAlignReference_Callback(hObject, eventdata, handles)
 %% Align to reference computed as mean of reference of single group
 global data
+
+hh = waitbar(0, 'Please wait...');
+
 Reference=data.Alignment.MotherOfRef_Nof;
 finalAlign(handles,Reference)
+
+waitbar(0.9);
+delete(hh);
+Mess = msgbox({['The selection has been aligned'];['---------------------------------'];['Go to the Main GUI and click Update Traces to see the results']});
 
 
 function finalAlign(handles,Reference)
