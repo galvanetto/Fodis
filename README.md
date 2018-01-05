@@ -5,7 +5,7 @@
 
 Fodis is a desktop application to visualise and analyze Force Spectroscopy curves of the unfolding of Single Molecules.
 
-<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/afm-ot.JPG">
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/afm-ot1.JPG">
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view.JPG">
 
 
