@@ -2178,8 +2178,34 @@ switch(indexView)
                 FcMax=data.listFc{iieffTrace};
             end
             
-            data.ExcelExport.LC{iieffTrace}=LcMaxPts;
-            data.ExcelExport.FC{iieffTrace}=FcMax(FcMax>0);
+            %calculate Loading rate before rupture of every peak:
+            % calculate the slope of the peak first
+            
+            FcMaxEFF=FcMax(FcMax>0);
+            SlopePeak=[];
+            try
+                for jjj=1:length(FcMaxEFF)
+                    [~, position]=min(abs(tempF-FcMaxEFF(jjj)));
+                    F20=tempF(position-20:position)';
+                    tss20=tempTss(position-20:position)';
+                    
+                    tss20X = [ones(length(tss20),1) tss20];
+                    b = tss20X\F20;
+                    
+                    SlopePeak(jjj)=b(2);
+                                       
+                end
+                
+                
+                
+            catch e
+            end
+              
+            
+            
+            data.ExcelExport.LC{iieffTrace,1}=LcMaxPts;
+            data.ExcelExport.FC{iieffTrace,1}=FcMax(FcMax>0);
+            data.ExcelExport.Slope{iieffTrace,1}=SlopePeak;
 
             [tempDeltaLc, tempDeltaLcFc, tempLcDeltaLc] =getDeltaLc...
                 (startLcDeltaLc, LcMaxPts, FcMax, minDeltaLc, maxDeltaLc, xBinDeltaLc);
@@ -2806,6 +2832,7 @@ data.listLc=cell(data.nTraces,1);
 data.listFc=cell(data.nTraces,1);
 data.ExcelExport.LC=cell(data.nTraces,1);
 data.ExcelExport.FC=cell(data.nTraces,1);
+data.ExcelExport.Slope=cell(data.nTraces,1);
 
 setappdata(handles.fig_FtW,'triggerLc',0)
 setappdata(handles.fig_FtW,'triggerLc2',0)
