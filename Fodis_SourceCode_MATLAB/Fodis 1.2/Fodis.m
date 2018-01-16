@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 03-Jan-2018 21:03:40
+% Last Modified by GUIDE v2.5 12-Jan-2018 18:26:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1291,7 +1291,7 @@ for ii=1:nTraces
     xlswrite(fullPath,ii,['A' num2str(ii+1) ':A' num2str(ii+1)])
     sizeLC=length(data.ExcelExport.LC{ii});
     xlswrite(fullPath,data.ExcelExport.LC{ii},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
-    waitbar(ii/(2*nTraces));
+    waitbar(ii/(3*nTraces));
 end
 
 xlswrite(fullPath,{'Trace num.'},['A' num2str(nTraces+3) ':A' num2str(nTraces+3)])
@@ -1301,7 +1301,17 @@ for ii=1:nTraces
     xlswrite(fullPath,ii,['A' num2str(nTraces+ii+3) ':A' num2str(nTraces+ii+3)])
     sizeFC=length(data.ExcelExport.FC{ii});
     xlswrite(fullPath,data.ExcelExport.FC{ii},['B' num2str(nTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(nTraces+ii+3)])
-    waitbar((ii+nTraces)/(2*nTraces));
+    waitbar((ii+nTraces)/(3*nTraces));
+end
+
+xlswrite(fullPath,{'Trace num.'},['A' num2str(2*nTraces+5) ':A' num2str(2*nTraces+5)])
+xlswrite(fullPath,{'Slope at the end of the peak (nN/nm)'},['B' num2str(2*nTraces+5) ':B' num2str(2*nTraces+5)])
+
+for ii=1:nTraces
+    xlswrite(fullPath,ii,['A' num2str(2*nTraces+ii+5) ':A' num2str(2*nTraces+ii+5)])
+    sizeSlope=length(data.ExcelExport.Slope{ii});
+    xlswrite(fullPath,data.ExcelExport.Slope{ii},['B' num2str(2*nTraces+ii+5) ':' Alphabet{sizeSlope+1} num2str(2*nTraces+ii+5)])
+    waitbar((ii+2*nTraces)/(3*nTraces));
 end
 
 delete(hh);
@@ -1772,14 +1782,17 @@ LcHistMax = hist(LcMaxPts, xBin);
 LcHistMax(LcHistMax > 1) = 1;
 set(handles.EditLcSaved, 'string',allLcString)
 
-% clear screen
-axes(handles.axesMain)
-legend off
-cla;
-
 %Get info on popupmenu
 indexView = getIndexView(handles);
 
+
+if strcmp(indexView, 'Global contour length histogram max') %the histogram does not disapper
+else
+    % clear screen
+    axes(handles.axesMain)
+    legend off
+    cla;
+end
 
 
 switch(indexView)
@@ -2024,6 +2037,11 @@ switch(indexView)
         % normalize histograms
         nrseltrace=sum(~cellfun(@isempty,FcMax));
         maxHistValue = maxHistValue/nrseltrace;
+        
+        % clear screen
+        axes(handles.axesMain)
+        legend off
+        cla;
         
         % plot histogram
         hmax=bar(xBin * 1E9, maxHistValue, 1, 'BaseValue', 0, 'FaceColor', [0 0 0], 'EdgeColor', [0.8 0.8 0.8]);
@@ -3082,19 +3100,41 @@ if strcmp(get(handles.auto_multiGauss,'checked'),'off')
 end
 showTraces(handles)
 
-x=data.MultyGauss(:,1);
-y=data.MultyGauss(:,2);
+try
+    x=data.MultyGauss(:,1);
+    y=data.MultyGauss(:,2);
+    
+    %find maxima and minima to find the intervals (sum a parabola to find
+    %minima also in the extremes
+    
+    [pksM,locsM]=findpeaks(y);
+    
+    parabola=x.*(x-2*(x(locsM(1))))*-1e-6;
+    
+    
+    [pksm,locsm]=findpeaks(-y+parabola);
+    
+    data.IntervalExteremes=round(x(locsm));
+    data.IntervalExteremes(data.IntervalExteremes<0)=0;
+    stringGroup=[];
+    for i=1:length(data.IntervalExteremes)-1
+        
+        
+        stringGroup=[stringGroup num2str(data.IntervalExteremes(i)) '-' num2str(data.IntervalExteremes(i+1)) ','];
+        
+        
+    end
+    
+    set(handles.NrIntGroup,'string',stringGroup(1:end-1))
+    NrIntGroup_Callback(handles.NrIntGroup,eventdata, handles)
+    
+catch e
+    Mess = msgbox({['The automatic interval failed'];['There may be a problem with the extremes.']});
+end
 
-%find maxima and minima to find the intervals (sum a parabola to find
-%minima also in the extremes
 
-[pksM,locsM]=findpeaks(y);
-
-parabola=x.*(x-2*(x(locsM(1))))*-1e-6;
-
-
-[pksm,locsm]=findpeaks(-y+parabola);
-
-data.IntervalExteremes=x(locsm);
-
-
+% --------------------------------------------------------------------
+function menu_exportcsv_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_exportcsv (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

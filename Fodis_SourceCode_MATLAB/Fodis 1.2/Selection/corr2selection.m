@@ -22,7 +22,7 @@ function varargout = corr2selection(varargin)
 
 % Edit the above text to modify the response to help corr2selection
 
-% Last Modified by GUIDE v2.5 19-Dec-2016 10:55:35
+% Last Modified by GUIDE v2.5 12-Jan-2018 18:08:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -47,6 +47,7 @@ end
 % --- Executes just before corr2selection is made visible.
 function corr2selection_OpeningFcn(hObject, eventdata, handles, varargin)
 global positiveResult
+global data
 % Choose default command line output for corr2selection
 handles.output = hObject;
 
@@ -54,7 +55,10 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 %Gui Setting
+
+data.manuallySelected=[];
 nTraces=positiveResult.nTraces;
+
 set(handles.slider_corrsel, 'Min', 1);
 set(handles.slider_corrsel, 'Max', nTraces);
 set(handles.slider_corrsel, 'SliderStep', [1/(nTraces-1) 1/(nTraces-1)]);
@@ -71,6 +75,7 @@ set(handles.text_editTr1,'string',['/' num2str(positiveResult.nTraces)])
 set(handles.text_editTr2,'string',['/' num2str(positiveResult.nTraces)])
 
 setappdata(handles.figure_corrsel,'pushbuttonTrigger',1)
+
 compute_hist(handles)
 % UIWAIT makes corr2selection wait for user response (see UIRESUME)
 % uiwait(handles.figure_corrsel);
@@ -663,6 +668,7 @@ else
 end
 figure(h)
 hold on
+plot(data.manuallySelected, data.manuallySelected,'xk')
 
 hndLine = imline;
 wait(hndLine);
@@ -694,14 +700,15 @@ else
 end
 
 hold on
-selected=posend(1):1:posend(2);
-plot(selected,selected,'xk')
+
+data.manuallySelected=unique([data.manuallySelected posend(1):1:posend(2)]);
+plot(data.manuallySelected, data.manuallySelected,'xk')
 delete(hndLine)
 
 set(handles.text_valid, 'string', ['Traces Valid            '...
-    num2str(length(selected)) '/' num2str(positiveResult.nTraces)]);
+    num2str(length(data.manuallySelected)) '/' num2str(positiveResult.nTraces)]);
 
-data.SelectTrace.Valid=data.SelectTrace.ord(selected);
+data.SelectTrace.Valid=data.SelectTrace.ord(data.manuallySelected);
 
 
 function pushbutton_selectcorrint_Callback(hObject, eventdata, handles)
@@ -775,3 +782,12 @@ function edit_refTrace_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function pushbutton_delete_Callback(hObject, eventdata, handles)
+global data
+
+data.manuallySelected=[];
+Sort_corr_Callback(handles.Sort_corr, eventdata, handles)
+
