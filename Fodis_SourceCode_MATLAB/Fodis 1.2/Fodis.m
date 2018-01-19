@@ -583,6 +583,7 @@ end
 selections = textscan(selections, '%s', 'delimiter', ',');
 selections = str2double(selections{1});
 
+
 alltraces= 1:1:nTraces;
 logsel=ismember(alltraces,selections);
 logseleffok=positiveResult.indexTrace(logsel);
@@ -1260,63 +1261,9 @@ hn=figure;
 copyobj(handles.axesMain,hn);
 set(gca,'position',[0.1300 0.1100 0.7750 0.8150]);
 
-function menu_exportExcel_Callback(hObject, eventdata, handles)
 
-global data
-global positiveResult
 
-[FileName,PathName,FilterIndex] = uiputfile('.xls','Save Excel','ExportedData');%Set path
 
-if isequal(FileName,0) || isequal(PathName,0)                              % if the user chooses "Cancel"
-   return
-end
-
-fullPath=fullfile(PathName,FileName);
-
-set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
-showTraces(handles)
-
-hh = waitbar(0, 'Please wait, we are writing...');
-
-nTraces = positiveResult.nTraces;                                          %Nr total traces
-
-Alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'...
-    ,'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ'...
-    ,'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'};
-
-xlswrite(fullPath,{'Trace num.'},'A1:A1')
-xlswrite(fullPath,{'Peaks Lc (m)'},'B1:B1')
-
-for ii=1:nTraces
-    xlswrite(fullPath,ii,['A' num2str(ii+1) ':A' num2str(ii+1)])
-    sizeLC=length(data.ExcelExport.LC{ii});
-    xlswrite(fullPath,data.ExcelExport.LC{ii},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
-    waitbar(ii/(3*nTraces));
-end
-
-xlswrite(fullPath,{'Trace num.'},['A' num2str(nTraces+3) ':A' num2str(nTraces+3)])
-xlswrite(fullPath,{'Peak Force (N)'},['B' num2str(nTraces+3) ':B' num2str(nTraces+3)])
-
-for ii=1:nTraces
-    xlswrite(fullPath,ii,['A' num2str(nTraces+ii+3) ':A' num2str(nTraces+ii+3)])
-    sizeFC=length(data.ExcelExport.FC{ii});
-    xlswrite(fullPath,data.ExcelExport.FC{ii},['B' num2str(nTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(nTraces+ii+3)])
-    waitbar((ii+nTraces)/(3*nTraces));
-end
-
-xlswrite(fullPath,{'Trace num.'},['A' num2str(2*nTraces+5) ':A' num2str(2*nTraces+5)])
-xlswrite(fullPath,{'Slope at the end of the peak (nN/nm)'},['B' num2str(2*nTraces+5) ':B' num2str(2*nTraces+5)])
-
-for ii=1:nTraces
-    xlswrite(fullPath,ii,['A' num2str(2*nTraces+ii+5) ':A' num2str(2*nTraces+ii+5)])
-    sizeSlope=length(data.ExcelExport.Slope{ii});
-    xlswrite(fullPath,data.ExcelExport.Slope{ii},['B' num2str(2*nTraces+ii+5) ':' Alphabet{sizeSlope+1} num2str(2*nTraces+ii+5)])
-    waitbar((ii+2*nTraces)/(3*nTraces));
-end
-
-delete(hh);
-
-disp('Done')
 function auto_multiGauss_Callback(hObject, eventdata, handles)
 
 value=get(hObject,'Checked');
@@ -1786,7 +1733,9 @@ set(handles.EditLcSaved, 'string',allLcString)
 indexView = getIndexView(handles);
 
 
-if strcmp(indexView, 'Global contour length histogram max') %the histogram does not disapper
+if strcmp(indexView, 'Global contour length histogram max')...
+        || strcmp(indexView, 'Global contour length histogram') ...
+        || strcmp(indexView, 'Global peaks') 
 else
     % clear screen
     axes(handles.axesMain)
@@ -1967,6 +1916,8 @@ switch(indexView)
         
         % normalize histograms
         histValue = histValue / max(histValue(:));
+        
+        cla;
         
         % plot histogram
         bar(xBin * 1E9, histValue, 1, 'BaseValue', 0, 'FaceColor', [0 0 0], 'EdgeColor', [1 1 1]);
@@ -2167,7 +2118,12 @@ switch(indexView)
         end
         
         h = waitbar(0, 'Please wait...');
-
+        
+        
+        data.ExcelExport.LC={};
+        data.ExcelExport.FC={};
+        data.ExcelExport.Slope={};
+        
         % for each trace
         for ii = 1:1:nTraces
                         
@@ -2219,8 +2175,7 @@ switch(indexView)
             catch e
             end
               
-            
-            
+                      
             data.ExcelExport.LC{iieffTrace,1}=LcMaxPts;
             data.ExcelExport.FC{iieffTrace,1}=FcMax(FcMax>0);
             data.ExcelExport.Slope{iieffTrace,1}=SlopePeak;
@@ -2540,6 +2495,7 @@ switch(indexView)
         end
         
         delete(h);
+        cla;
         hold on;
         imagesc(xBin*1E9,0.5:1:nTraces-0.5,globalMatrix)
         cmap =[1 1 1;0 0 0];
@@ -3133,8 +3089,150 @@ catch e
 end
 
 
-% --------------------------------------------------------------------
+function menu_exportExcel_Callback(hObject, eventdata, handles)
+
+global data
+global positiveResult
+
+try
+    
+    [FileName,PathName,FilterIndex] = uiputfile('.xls','Save Excel','ExportedData');%Set path
+    
+    if isequal(FileName,0) || isequal(PathName,0)                              % if the user chooses "Cancel"
+        return
+    end
+    
+    fullPath=fullfile(PathName,FileName);
+    
+    set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
+    showTraces(handles)
+    
+    hh = waitbar(0, 'Please wait, we are writing...');
+    
+    
+    selections = get(handles.editSelectedTraces, 'string');           %to see the numbers of selected
+    if isempty(selections)
+        data.removeTraces(positiveResult.indexTrace) = 1;
+        data.TracesGroup(positiveResult.indexTrace)=0;
+        showTraces(handles);
+        return
+    end
+    
+    selections = textscan(selections, '%s', 'delimiter', ',');
+    selections = str2double(selections{1});
+    True_selections=find(~cellfun('isempty', data.ExcelExport.FC));   %to see the numbers in the valid
+    
+    numTraces = length(selections);                                          %Nr total traces
+    
+    Alphabet = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'...
+        ,'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ'...
+        ,'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'};
+    
+    xlswrite(fullPath,{'Trace num.'},'A1:A1')
+    xlswrite(fullPath,{'Peaks Lc (m)'},'B1:B1')
+    
+    for ii=1:numTraces
+        xlswrite(fullPath,selections(ii),['A' num2str(ii+1) ':A' num2str(ii+1)])
+        sizeLC=length(data.ExcelExport.LC{True_selections(ii)});
+        xlswrite(fullPath,data.ExcelExport.LC{True_selections(ii)},['B' num2str(ii+1) ':' Alphabet{sizeLC+1} num2str(ii+1)])
+        waitbar(ii/(3*numTraces));
+    end
+    
+    xlswrite(fullPath,{'Trace num.'},['A' num2str(numTraces+3) ':A' num2str(numTraces+3)])
+    xlswrite(fullPath,{'Peak Force (N)'},['B' num2str(numTraces+3) ':B' num2str(numTraces+3)])
+    
+    for ii=1:numTraces
+        xlswrite(fullPath,selections(ii),['A' num2str(numTraces+ii+3) ':A' num2str(numTraces+ii+3)])
+        sizeFC=length(data.ExcelExport.FC{True_selections(ii)});
+        xlswrite(fullPath,data.ExcelExport.FC{True_selections(ii)},['B' num2str(numTraces+ii+3) ':' Alphabet{sizeFC+1} num2str(numTraces+ii+3)])
+        waitbar((ii+numTraces)/(3*numTraces));
+    end
+    
+    xlswrite(fullPath,{'Trace num.'},['A' num2str(2*numTraces+5) ':A' num2str(2*numTraces+5)])
+    xlswrite(fullPath,{'Slope at the end of the peak (nN/nm)'},['B' num2str(2*numTraces+5) ':B' num2str(2*numTraces+5)])
+    
+    for ii=1:numTraces
+        xlswrite(fullPath,selections(ii),['A' num2str(2*numTraces+ii+5) ':A' num2str(2*numTraces+ii+5)])
+        sizeSlope=length(data.ExcelExport.Slope{True_selections(ii)});
+        xlswrite(fullPath,data.ExcelExport.Slope{True_selections(ii)},['B' num2str(2*numTraces+ii+5) ':' Alphabet{sizeSlope+1} num2str(2*numTraces+ii+5)])
+        waitbar((ii+2*numTraces)/(3*numTraces));
+    end
+    
+    delete(hh);
+    
+catch e
+    Mess = msgbox({['Your system seems to have some problems with the Excel export'];...
+        ['-----------------------------------------'];['We suggest to use:  Tools > Export Peak Info (comma separated values .txt)']});
+end
+
+disp('Done')
+
+
 function menu_exportcsv_Callback(hObject, eventdata, handles)
-% hObject    handle to menu_exportcsv (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+global data
+global positiveResult
+
+
+[filename, pathname] = uiputfile({'*.txt'}, 'Export traces');
+
+if (filename == 0);return;end
+
+fid = fopen(fullfile(pathname, filename), 'w');
+
+set(handles.popupmenuView,'value',10)                                      %Move to GLobal Force Plot
+showTraces(handles)
+
+hh = waitbar(0, 'Please wait, we are writing...');
+
+selections = get(handles.editSelectedTraces, 'string');           %to see the numbers of selected
+if isempty(selections)
+   data.removeTraces(positiveResult.indexTrace) = 1;  
+   data.TracesGroup(positiveResult.indexTrace)=0;
+   showTraces(handles);
+   return
+end
+
+selections = textscan(selections, '%s', 'delimiter', ',');
+selections = str2double(selections{1});
+True_selections=find(~cellfun('isempty', data.ExcelExport.FC));   %to see the numbers in the valid
+
+
+
+
+numTraces = length(selections);                                          %Nr total traces
+
+fprintf(fid, 'Trace num.,Peaks Lc (m)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.LC{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar(ii/(3*numTraces));
+end
+
+fprintf(fid, '\nTrace num.,Peak Force (N)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.FC{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar((ii+numTraces)/(3*numTraces));
+end
+
+fprintf(fid, '\nTrace num.,Slope at the end of the peak (nN/nm)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.Slope{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar((ii+2*numTraces)/(3*numTraces));
+end
+
+
+fclose(fid);
+delete(hh);
+
+disp('Done')
