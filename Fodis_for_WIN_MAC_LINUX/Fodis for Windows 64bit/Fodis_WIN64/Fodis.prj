@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration file="C:\Users\Yoga 3\Desktop\fodis exe 6\Fodis.prj" location="C:\Users\Yoga 3\Desktop\fodis exe 6" name="Fodis" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration file="C:\Users\Yoga 3\Desktop\Fodis_Win64\Fodis.prj" location="C:\Users\Yoga 3\Desktop\Fodis_Win64" name="Fodis" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Fodis</param.appname>
     <param.icon>${PROJECT_ROOT}\Fodis_resources\icon.ico</param.icon>
     <param.icons>
@@ -11,12 +11,12 @@
     <param.version>1.2</param.version>
     <param.authnamewatermark />
     <param.email />
-    <param.company />
+    <param.company>SISSA</param.company>
     <param.summary />
     <param.description />
     <param.screenshot>C:\Users\Yoga 3\Documents\Github repository\Fodis\Fodis\Fodis_SourceCode_MATLAB\Fodis 1.2\icon_background.png</param.screenshot>
     <param.guid />
-    <param.installpath.string>\Fodis\</param.installpath.string>
+    <param.installpath.string>\SISSA\Fodis\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
     <param.logo />
     <param.install.notes />
@@ -38,11 +38,10 @@
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
     <param.create.log>true</param.create.log>
-    <param.log.file>LOG.txt</param.log.file>
+    <param.log.file>LOG</param.log.file>
     <unset>
       <param.authnamewatermark />
       <param.email />
-      <param.company />
       <param.summary />
       <param.description />
       <param.guid />
@@ -155,9 +154,9 @@
       <file>C:\Users\Yoga 3\Documents\Github repository\Fodis\Fodis\Fodis_SourceCode_MATLAB\Fodis 1.2\Tools\heterogeneity.m</file>
     </fileset.depfun>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="Fodis.exe" optional="false">C:\Users\Yoga 3\Desktop\fodis exe 6\Fodis\for_testing\Fodis.exe</file>
-      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="splash.png" optional="false">C:\Users\Yoga 3\Desktop\fodis exe 6\Fodis\for_testing\splash.png</file>
-      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="readme.txt" optional="true">C:\Users\Yoga 3\Desktop\fodis exe 6\Fodis\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="splash.png" optional="false">C:\Users\Yoga 3\Desktop\Fodis_Win64\Fodis\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="Fodis.exe" optional="false">C:\Users\Yoga 3\Desktop\Fodis_Win64\Fodis\for_testing\Fodis.exe</file>
+      <file location="${PROJECT_ROOT}\Fodis\for_testing" name="readme.txt" optional="true">C:\Users\Yoga 3\Desktop\Fodis_Win64\Fodis\for_testing\readme.txt</file>
     </build-deliverables>
     <workflow />
     <matlab>
