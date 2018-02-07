@@ -6,7 +6,7 @@ It will download a free version of the MATLAB_RUNTIME necessary to run Fodis.
 
 It will take few minutes to download and ~3 GB of free space
 
-At the end of the installation run >> Fodis.app <<
+At the end of the installation run >> Fodis.exe << 
 
 
 
