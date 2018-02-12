@@ -20,7 +20,7 @@ idxUnits = find(cellfun('isempty', strfind(dataLocal, '# units: ')) == 0);      
 %Only the one after the segment beginning
 idxColumnsValid=find(idxColumns>idxSegmentRetract(1));                     %Find columns of the first segment retract
 idxUnitsValid=find(idxUnits>idxSegmentRetract(1));                         %Find units of the first segment retract
-idxNextSegment=find(idxAllSegment>idxSegmentRetract(1));                   %Find beginning of the segment after segment retract
+idxNextSegment=idxAllSegment( find(idxAllSegment>idxSegmentRetract(1)) );  %Find beginning of the segment after segment retract
 
 idxNumberData = find(cellfun('isempty', strfind(dataLocal, '#')));              %Not Header-->data
 idxStartData=find(idxNumberData>idxSegmentRetract(1));                     %Start data of segment retract      
@@ -34,7 +34,7 @@ if ~isempty(idxColumnsValid)
         
         %Line of data between beginning of data retract and before the
         %beginning of next segmnent
-        idxEndData=find(idxNumberData>idxStartDataRetract && idxNumberData<idxNextSegment(1)); 
+        idxEndData=find(idxNumberData>idxStartDataRetract & idxNumberData<idxNextSegment(1)); 
         
         idxEndDataRetract=idxNumberData(idxEndData(end));                  %End data of segment retract      
     else
