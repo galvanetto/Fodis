@@ -16,7 +16,7 @@ Fodis is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICE
 
 # How to cite it:
 
-N. Galvanetto et al., ...
+N. Galvanetto, et al. Fodis: Software for Protein Unfolding Analysis, Biophysical Journal. 114 (2018) 1264–1266. doi:10.1016/j.bpj.2018.02.004.
 
 
 # Supported File Formats
