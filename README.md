@@ -1,5 +1,5 @@
 
-[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/archive/master.zip)
+[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
 
 # About Fodis
 
