@@ -1,0 +1,741 @@
+.. -*- mode: rst; coding: utf-8 -*-
+
+.. This file is in reStructuredText format.  It can be converted to
+   HTML, for example, by typing
+
+       rst2html --input-encoding utf-8 JPKForceSpec.txt JPKForceSpec.html
+
+========================================
+JPK Instruments Force Spectroscopy Files
+========================================
+
+:Version: 2.0:1fffffffff
+:Date: 2013-02-19
+:Copyright: Copyright © JPK Instruments AG, 2010-2011,2013.  All rights reserved.
+:Copies: For copies or updates of this document, please contact `JPK Instruments`_.
+:Email: support@jpk.com
+
+--------
+Abstract
+--------
+
+This file describes the format of JPK Instruments' jpk-force and
+jpk-force-map files, which are the formats currently used for storing
+individual force scans and force maps, respectively.  It describes all
+file format revisions up to and including the version number listed above.
+
+.. contents:: Table of contents
+
+
+------------
+Introduction
+------------
+
+A "ForceScanSeries" is a series of force scans taken at a single (x,y)
+position.  Typically, a force scan series only contains a single
+repetition of a force ramp.  This is usually one extend and one
+retract segment plus perhaps some pause segments; however, more
+complicated ramps can be built using the ramp designer (e.g.,
+approach, pause, retract, clamp, retract, clamp, retract).  A
+ForceScanSeries contains a header and one or more ForceSegments.
+
+A "ForceSegment" holds the data from one extend segment, retract
+segment, pause segment, or force clamp segment.  A ForceSegment
+contains a header plus data from zero or more instrument channels
+(e.g., height, vertical deflection, etc.)
+
+A "ForceMap" consists of a collection of ForceScanSeries taken at
+multiple (x,y) positions, usually located on a grid.  An entire force
+map is usually stored in a single jpk-force-map file.  (A force map
+file can be split into its constituent ForceScanSeries using the
+"splitmapfile" script, which is included with the JPK Instruments
+software.)
+
+A "Quantitative Image™" consists of force scans taken at a fine grid
+of points, and images derived from these force scans.
+
+
+Sign conventions
+================
+
+Sign conventions for force spectroscopy vary between companies.
+Please note the conventions used by JPK Instruments:
+
+* Heights: the height of the z-scanner is considered to increase when
+  the tip and sample move further away from each other and decrease
+  when they approach each other.  Typically 0.0 represents the
+  fully-extended state of the instrument (i.e., when the tip is pushed
+  as far as possible into the sample) and heights are positive numbers
+  measured from that position.
+
+* Vertical deflection (force): the vertical deflection is considered
+  positive when the tip and sample are pushing against each other
+  (indenting) and negative when they are pulling away from each other
+  (adhering).
+
+
+---------------
+Version numbers
+---------------
+
+Starting with file version 2.0, JPK has switched to a feature-based
+system for describing the version of a file.  The main file version
+number of all zip-based data files is "2.0".  However, the file
+version number now includes a second number called
+``FileFormatFeatures`` that encodes what additional file features are
+present in the file.  This number is written as a string that
+represents a bitmap as a large hexadecimal integer, and it is appended
+to the main version number following a colon (e.g., "2.0:40008b46").
+Each bit in the second number indicates a new feature or new piece of
+data that is present in the file.  Each version of the JPK Instruments
+software has a similar bitmap representing the features it is capable
+of understanding, and it can therefore determine whether it is able to
+read a particular file by checking whether all of the bits in the file
+format features bitmap are also set in its own capabilities bitmap.
+
+However, the main structure of the JPK force file format has not
+changed in a long time, and most of the new features cover metadata
+details that would not be interesting to third-party tools.  (Usually
+you would only need to worry about FileFormatFeatures if you want to
+be sure that you can read every last iota of file metadata.)  If you
+require more details about file format features, please contact `JPK
+Instruments`_.
+
+
+-----------------
+Basic file format
+-----------------
+
+JPK force files, force map files, and quantitative imaging™ (QI™)
+files are now stored in `zip file`_ format.  The files are meant to be
+as transparent as possible while being reasonably compact for the
+amount of data that they contain.  Because the files are in zip
+format, it should be possible to open them using a standard zip
+library or even unzip them with standard unzipping tools.
+
+.. _zip file: http://www.pkware.com/documents/APPNOTE/APPNOTE-6.2.0.txt
+
+Size considerations
+===================
+
+Please beware that some files (especially force map and QI files) can
+be very large (multiple Gb) and have very many zip file entries
+(e.g. several million).  Therefore, there are a few caveats related to
+the largest files:
+
+* Files that are under 2 Gb are stored as 32-bit zip format, but files
+  larger than 2 Gb are stored in 64-bit zip format.  Most zip tools
+  are able to handle 64-bit zip files, but some are not.
+
+* Most zip libraries and tools attempt to read the whole zip table of
+  contents when opening the file.  For large zip files this can
+  exhaust the system's RAM, or (in the case of 32-bit computers) even
+  exhaust their address space.
+
+So if you want to be able to read the largest files, select your zip
+library with these points in mind.  (Alternately, use a computer that
+has a lot of RAM and is running in 64-bit mode.)
+
+Zip file contents
+=================
+
+Within the zip file container, there are two types of files:
+properties files and data files.
+
+Properties files (`*.properties`)
+---------------------------------
+
+Properties files are text-based files containing key/value pairs, in
+the format used by `Java properties files`_.  All of the JPK-generated
+content is ASCII, but some user-specified fields might contain
+non-ASCII characters.  The file is written in the `UTF-8`_ encoding.
+
+To conserve space, much data that would be duplicated in many
+properties files is stored in a file called
+``shared-data/header.properties``.  Such values are referred to from
+the original properties file via a key value ending with ``.*``; for
+example [#]_:
+
+    In ``segments/2/segment-header.properties``, ::
+
+        channel.seriesTime.lcd-info.*=3
+
+    is a reference to the following data in
+    ``shared-data/header.properties``::
+
+        lcd-info.3.type=raster-data
+        lcd-info.3.channel.name=seriesTime
+        lcd-info.3.unit.type=metric-unit
+        ...
+
+    The combination is effectively expanded to ::
+
+        channel.seriesTime.lcd-info.type=raster-data
+        channel.seriesTime.lcd-info.channel.name=seriesTime
+        channel.seriesTime.lcd-info.unit.type=metric-unit
+        ...
+
+
+.. _Java properties files: http://download.oracle.com/javase/1.4.2/docs/api/java/util/Properties.html#load%28java.io.InputStream%29
+
+.. _UTF-8: http://en.wikipedia.org/wiki/Utf-8
+
+.. [#] In the example, "``lcd``" is an abbreviation for "line channel
+   data".
+
+
+Data files (`*.dat`)
+--------------------
+
+Data files contain arrays of raw data in binary format.  The data are
+stored in network byte order (i.e., most significant byte first) as
+either 32-bit IEEE single-precision floating-point numbers, 16-bit
+signed or unsigned integers, or 32-bit signed or unsigned integers.
+The exact format of such a file is defined by the properties file that
+refers to it.  For more information about such files, refer to chapter
+`Binary data`_.
+
+
+-----------
+Force files
+-----------
+
+A force scan series is stored as a zip file with the filename
+extension "``.jpk-force``".  The data within the zip file are
+organized as follows:
+
+  * ``header.properties``
+  * ``shared-data/header.properties`` *(optional)*
+  * ``segments/``
+  * ``segments/0/``
+  * ``segments/0/segment-header.properties``
+  * ``segments/0/channels/``
+  * ``segments/0/channels/height.dat``
+  * ``segments/0/channels/vDeflection.dat``
+  * ...
+  * ``segments/1/``
+  * ``segments/1/segment-header.properties``
+  * ``segments/1/channels/``
+  * ``segments/1/channels/height.dat``
+  * ...
+  * ``segments/2/``
+  * ...
+
+.. _Java properties files: http://download.oracle.com/javase/1.4.2/docs/api/java/util/Properties.html#load%28java.io.InputStream%29
+
+The file header.properties contains general information that applies
+to the complete ForceScanSeries, for example the file format version
+number, the (x,y) position, etc.
+
+The folder 'segments' contains the ForceSegments comprising the
+ForceScanSeries.  Each segment is stored in a subdirectory named using
+the index of the segment (integer values, counting from 0).
+
+Each of the segment directories contains information about the segment
+in a file called segment-header.properties.  It also holds binary
+files containing any raw data for channels that were recorded for the
+segment.  The binary data files are named using the short name of the
+channel, as listed in the segment header file.
+
+Summary:
+
+  * ``header.properties`` describes the force scan series as a whole.
+
+  * ``shared-data/header.properties`` *(optional)* contains data that
+    are referred to by other properties files to save space.
+
+  * ``segments/N/`` contains the Nth segment of the force scan series.
+
+  * ``segments/N/segment-header.properties`` describes that segment.
+
+  * ``segments/N/channels/NAME.dat`` contains the data for channel
+    NAME in that segment.
+
+
+---------------
+Force map files
+---------------
+
+A force map is stored as a zip file with the filename extension
+"``.jpk-force-map``".  The format is similar to that used for force
+scans.  (Please note that force map files can be very large and
+contain many zip file entries.  Files larger than 2 GB are stored in
+64-bit zip format.)
+
+The layout of a force map file is as follows:
+
+  * ``header.properties``
+  * ``shared-data/header.properties``
+  * ``index/``
+  * ``index/0/``
+  * ``index/0/header.properties``
+  * ``index/0/segments/``
+  * ``index/0/segments/0/``
+  * ``index/0/segments/0/segment-header.properties``
+  * ``index/0/segments/0/channels``
+  * ``index/0/segments/0/channels/height.dat``
+  * ...
+  * ``index/0/segments/1/``
+  * ``index/0/segments/1/segment-header.properties``
+  * ...
+  * ``index/1/``
+  * ``index/1/header.properties``
+  * ``index/1/segments/``
+  * ``index/1/segments/0/``
+  * ``index/1/segments/0/segment-header.properties``
+  * ...
+  * ``index/1/segments/1/``
+  * ...
+
+Effectively, a force map file has a top level structure which
+describes one subdirectory for each force scan series.  The top-level
+directory contains a header.properties file describing the force map
+as a whole (e.g., the grid of (x,y) points at which the force scans
+were taken).  It also contains a subdirectory "index", which holds the
+force scan series for each (x,y) position in its subdirectories.  Each
+of these subdirectories contains a "header.properties" file and a
+"segments" directory describing each below, as described above.
+
+Summary:
+
+  * ``header.properties`` describes the force map as a whole.
+
+  * ``shared-data/header.properties`` *(optional)* contains data that
+    are referred to by other properties files to save space.
+
+  * ``index/N/`` contains the force scan series collected at position
+    index N.
+
+  * ``index/N/header.properties`` describes the force scan series at
+    position index N.
+
+  * ``index/N/segments/M/`` contains the Mth segment of the force scan
+    series at position index N.
+
+  * ``index/N/segments/M/segment-header.properties`` describes that
+    segment.
+
+  * ``index/N/segments/M/channels/NAME.dat`` contains the data for
+    channel NAME in that segment.
+
+
+---------------------------
+Quantitative Imaging™ files
+---------------------------
+
+A quantitative image is stored as a zip file with the filename
+extension "``.jpk-qi-data``".  Their format is very similar to those
+of force map files, with the addition of an image file and a
+thumbnail file:
+
+  * ``header.properties``
+  * ``shared-data/header.properties``
+  * ``index/``
+  * ...
+  * ``thumbnail.png`` *optional*
+  * ``data-image.jpk-qi-image`` *optional*
+
+The thumbnail file ``thumbnail.png`` contains a small (typically 64x64
+pixel) preview image, which is suitable to be used in file choosers,
+etc.
+
+The image file ``data-image.jpk-qi-image`` contains a TIFF file
+holding images that were derived from the force scans contained in the
+main QI data (for example, the surface height or adhesion as a
+function of position).  The TIFF file format is the same as used for
+other JPK Instruments image files and is described in a separate
+document, ``JPKImageSpec.txt``.
+
+Please note that quantitative imaging files can be very large and
+contain very many zip file entries.  Files larger than 2 GB are stored
+in 64-bit zip format.
+
+
+--------------
+Force segments
+--------------
+
+A force scan is composed of an arbitrary sequence of segments.  A
+segment consists of one motion or one pause.  There are two basic
+types of pauses: pause at constant height, and pause with feedback on
+(e.g., to maintain a constant force).
+
+The style and type of the segment is defined by two values:
+
+``force-segment-header.settings.segment-settings.style``
+  Defines the raw kind of segment/movement.  Possible values:
+
+  ``extend``
+    The tip was being extended towards the sample.
+
+  ``retract``
+    The tip was being retracted away from the sample.
+
+  ``pause``
+    The tip was being held at either constant height or constant
+    force.
+
+``force-segment-header.settings.segment-settings.type``
+
+  Defines the specific kind of segment/movement.  Possible values:
+
+  ``z-extend-height``
+    The tip was being extended towards the sample at constant
+    velocity.
+
+  ``z-extend-force``
+    The force was gradually being increased to extend the tip towards
+    the sample.
+
+  ``z-retract-height``
+    The tip was being retracted away from the sample at constant
+    velocity.
+
+  ``z-retract-force``
+    The force was gradually being decreased to retract the tip away
+    from the sample.
+
+  ``constant-height-pause``
+    The tip was being held at constant height above the sample.
+
+  ``constant-force-pause``
+    The tip was being held at constant force (with the height adjusted
+    as necessary).
+
+  ``pause``
+    *This value is obsolete but may be found in old force scan files.*
+    The segment was either constant-height-pause or constant-force-pause.
+    To distinguish between them, please read the key
+    ``force-segment-header.settings.segment-settings.pause-option``.
+    Possible values:
+
+    ``constant-height``
+      The pause was a constant-height-pause.
+
+    ``feedback-on``
+      The pause was a constant-force-pause.
+
+  ``tipsaver-pause``
+    *This value is obsolete but may be found in old force scan files.*
+    A constant-height-pause that was initiated because the "tipsaver"
+    force threshold was exceeded.
+
+
+The most important things recorded for each segment are its type, name
+(used to distinguish between multiple segments of the same type within
+a scan), duration (in seconds), and num-points (the number of values
+collected for each channel during the segment).  Note that a segment
+might not have a num-points property if data were not collected during
+the segment, but it always has a duration.
+
+Example::
+
+  force-segment-header.settings.segment-settings.type=z-extend-height
+  force-segment-header.settings.segment-settings.identifier.type=standard
+  force-segment-header.settings.segment-settings.identifier.name=extend
+  force-segment-header.settings.segment-settings.duration=0.4
+  force-segment-header.settings.segment-settings.num-points=256
+  force-segment-header.settings.segment-settings.style=extend
+  force-segment-header.settings.segment-settings.z-start=1.5E-5
+  force-segment-header.settings.segment-settings.z-end=0.0
+  force-segment-header.settings.segment-settings.setpoint=NaN
+
+This describes an extend segment during which 256 data points per
+channel were collected while the tip was extended from a height of
+15 µm to a height of 0 µm.
+
+The name of the segment is defined by the ``identifier`` part of the
+settings, which takes one of the following forms:
+
+* Standard segment name::
+
+    force-segment-header.settings.segment-settings.identifier.type=standard
+    force-segment-header.settings.segment-settings.identifier.name=extend
+
+  This is a standard "extend" segment.  The name used for such
+  segments varies slightly between instrument types, but can be taken
+  to be "Extend".
+
+* Standard segment name with extension::
+
+    force-segment-header.settings.segment-settings.identifier.type=ExtendedStandard
+    force-segment-header.settings.segment-settings.identifier.name=extend
+    force-segment-header.settings.segment-settings.identifier.prefix=(
+    force-segment-header.settings.segment-settings.identifier.suffix=-1)
+
+  This is a standard "extend" segment but with a prefix and/or suffix
+  to make the name unique.  The name used for such segments varies
+  slightly between instrument types, but can be taken to be
+  "(Extend-1)".
+
+* User-defined segment name::
+
+    force-segment-header.settings.segment-settings.identifier.type=user
+    force-segment-header.settings.segment-settings.identifier.name=my-extend(4)
+
+  This is a segment name that was typed in explicitly by the user, and
+  is displayed as "my-extend(4)".
+
+
+------------
+Channel data
+------------
+
+All data are ultimately treated as floating-point numbers, but there
+are various ways that the data are encoded.  There are two main types
+of data: `binary data`_ (stored as actual binary values) and `computed
+data`_ (data that can be computed from a few parameters).  The binary
+data might be stored directly as floating-point numbers, or it might
+be encoded as 32-bit integers or 16-bit short integers.  The type used
+to store data for a particular channel within a particular segment is
+recorded under the ``channel.*.data.type`` key.
+
+Furthermore, the data for a particular channel can often have multiple
+calibrations.  The meaning of calibrations and how they are stored are
+described in section `Data calibrations`_.
+
+Each calibration also specifies the units that apply to the data when
+interpreted using that calibration.  The units are always in base SI
+units; e.g., meters, newtons, volts, or seconds (but never nanometers,
+piconewtons, millivolts, etc).
+
+
+Binary data
+===========
+
+Usually, explicit binary data is stored for a channel.  Specifically,
+the data are stored in a separate file within the zipfile.  The key
+``channel.*.data.file.name`` gives the name of the file in which the
+data are stored, relative to the directory containing the properties
+file.  The number of pixels in the data file is recorded in the
+segment header, for example in ``force-segment-header.num-points``.
+The data themselves are stored in chronological order (the order in
+which they were collected), and the individual values are stored in
+network byte order (big-endian).
+
+The JPK file format currently supports binary data of the following
+types:
+
+``float-data`` | ``float``
+  The data are stored as IEEE single-precision floating point values.
+  The floating-point values are already scaled in the base calibration
+  slot; no encoder_ is associated with such data.
+
+``integer-data`` | ``memory-integer-data``
+  The data are stored as 32-bit integers.  The corresponding encoder_,
+  described by keys ``channel.*.data.encoder.*``, indicates whether
+  the data should be treated as signed or unsigned integers and how to
+  convert it to floating-point numbers in the base calibration slot.
+
+``short-data`` | ``short`` | ``memory-short-data``
+  The data are stored as 16-bit integers.  The corresponding encoder_,
+  described by keys ``channel.*.data.encoder.*``, indicates whether
+  the data should be treated as signed or unsigned shorts and how to
+  convert it to floating-point numbers in the base calibration slot.
+
+The alternative spellings of the types (e.g., ``float-data``
+vs. ``float``) are a historical artifact and have no significance.
+
+See section `Encoders`_ for more information about the encoders used
+for integer and short data.
+
+
+Computed data
+=============
+
+Some channel data (for example, ramps) are trivially computable and
+are not stored as data.  In these cases, the data are computed from
+information stored in the segment header itself.  The following types
+of computed data are supported:
+
+``constant-data``
+  All of the points have the same value.  The number of points is
+  stored in ``channel.*.data.num-points`` and the value is stored in
+  ``channel.*.data.value``.  The value are already scaled in the
+  base calibration slot; no "encoder" is associated with constant
+  data.
+
+``raster-data``
+  The points form a linear ramp.  The number of points is stored in
+  ``channel.*.data.num-points``, the starting value in
+  ``channel.*.data.start``, and the step size in
+  ``channel.*.data.step``.  The data for this case are computed as
+  ``value[i] = start + i * step``, where ``0 ≤ i < num-points``.
+  The values are already scaled in the base calibration slot; no
+  "encoder" is associated with raster data.
+
+  Example: the "time" channel usually consists of evenly-spaced
+  values, and so it is stored as raster data.  It might appear as::
+
+    channel.time.data.type=raster-data
+    channel.time.data.num-points=256
+    channel.time.data.start=0.0
+    channel.time.data.step=0.4
+    channel.time.data.unit.type=metric-unit
+    channel.time.data.unit.unit=s
+
+  This would correspond to a "time" data series with 256 values,
+  namely 0.0 s, 0.4 s, 0.8 s, ..., 102.0 s.
+
+
+Encoders
+========
+
+.. _encoder: `Encoders`_
+
+As mentioned in the section `Binary data`_, encoders are used to
+convert data that are stored in integer or short integer format into
+floating point numbers.  The type of encoder, stored in
+``channel.*.data.encoder.type``, is one of the following:
+
+``signedshort``, ``signedshort-limited``
+  The binary data are to be interpreted as signed short integers
+  (16-bit).
+
+``unsignedshort``, ``unsignedshort-limited``
+  The binary data are to be interpreted as unsigned short integers
+  (16-bit).
+
+``signedinteger``, ``signedinteger-limited``
+  The binary data are to be interpreted as signed integers (32-bit).
+
+``unsignedinteger``, ``unsignedinteger-limited``
+  The binary data are to be interpreted as unsigned integers (32-bit).
+
+``signedlong``, ``signedlong-limited``
+  The binary data are to be interpreted as signed long integers
+  (64-bit).
+
+The "limited" variants of the encoders also record the maximum and
+minimum allowed values.  (This extra information is typically not
+useful when reading data, and can usually be ignored.)
+
+The encoder also contains a "scaling", which defines the mathematical
+transformation that is used to convert the integral values to
+floating-point values with units.  The only type of scaling that is
+currently supported is "linear", which indicates an affine
+transformation: ``float-value = offset + multiplier *
+integral-value``.
+
+Example: suppose that the following encoder is specified for the
+vertical deflection channel::
+
+  channel.vDeflection.data.type=short
+  channel.vDeflection.data.encoder.type=unsignedshort
+  channel.vDeflection.data.encoder.scaling.type=linear
+  channel.vDeflection.data.encoder.scaling.style=offsetmultiplier
+  channel.vDeflection.data.encoder.scaling.offset=0.0020
+  channel.vDeflection.data.encoder.scaling.multiplier=1.0E-5
+  channel.vDeflection.data.encoder.scaling.unit=V
+
+The fact that the type is "short" indicates that each value in the
+data file is recorded as a 2-byte integer.  The fact that the encoder
+type is "unsignedshort" means that the integer is to be interpreted as
+unsigned data.  So if the first two bytes in the data file are 0x98
+and 0x76, then the short value is 0x9876 = 39030, and the float value
+is
+
+    39030 * 1.0e-5 + 0.0020 -> 0.3923 V
+
+This value is in the "base calibration slot", which usually describes
+how the data happen to be read directly from the instrument (e.g.,
+usually as a voltage).  Such values are typically not scientifically
+useful; they must be converted into useful units using one or more
+calibrations.  The next section describes how to convert a base slot
+value into a calibrated value by using the channel's "conversion set".
+
+
+Data calibrations
+=================
+
+Data from a particular channel can have multiple calibrations.  For
+example, a vertical deflection is measured by the instrument by
+converting a voltage to an integral value using an analog-to-digital
+converter.  The relationship between the integral value and the
+voltage is given by the channel's encoder.  But the voltage can be
+converted into a distance via a "sensitivity" calibration, and can be
+converted from a distance into a force via a spring constant
+calibration of the cantilever.  Therefore, after the value is decoded,
+it is necessary to decide in which "calibration slot" the value is
+desired and to convert it into that slot.
+
+The calibrations are stored in the data file as a "conversion set",
+which describes a ladder of conversions from one calibration to
+another.  For example::
+
+  channel.vDeflection.conversion-set.conversions.list=distance force
+  channel.vDeflection.conversion-set.conversions.default=force
+  channel.vDeflection.conversion-set.conversions.base=volts
+  channel.vDeflection.conversion-set.conversion.volts.name=volts
+  channel.vDeflection.conversion-set.conversion.volts.defined=false
+  channel.vDeflection.conversion-set.conversion.distance.name=distance
+  channel.vDeflection.conversion-set.conversion.distance.defined=true
+  channel.vDeflection.conversion-set.conversion.distance.type=simple
+  channel.vDeflection.conversion-set.conversion.distance.comment=distance
+  channel.vDeflection.conversion-set.conversion.distance.base-calibration-slot=volts
+  channel.vDeflection.conversion-set.conversion.distance.calibration-slot=distance
+  channel.vDeflection.conversion-set.conversion.distance.scaling.type=linear
+  channel.vDeflection.conversion-set.conversion.distance.scaling.style=offsetmultiplier
+  channel.vDeflection.conversion-set.conversion.distance.scaling.offset=-2.7968E-8
+  channel.vDeflection.conversion-set.conversion.distance.scaling.multiplier=1.0E-7
+  channel.vDeflection.conversion-set.conversion.distance.scaling.unit=m
+  channel.vDeflection.conversion-set.conversion.force.name=force
+  channel.vDeflection.conversion-set.conversion.force.defined=true
+  channel.vDeflection.conversion-set.conversion.force.type=simple
+  channel.vDeflection.conversion-set.conversion.force.comment=force
+  channel.vDeflection.conversion-set.conversion.force.base-calibration-slot=distance
+  channel.vDeflection.conversion-set.conversion.force.calibration-slot=force
+  channel.vDeflection.conversion-set.conversion.force.scaling.type=linear
+  channel.vDeflection.conversion-set.conversion.force.scaling.style=offsetmultiplier
+  channel.vDeflection.conversion-set.conversion.force.scaling.offset=0.0
+  channel.vDeflection.conversion-set.conversion.force.scaling.multiplier=0.1
+  channel.vDeflection.conversion-set.conversion.force.scaling.unit=N
+
+The example conversion set has three "slots": the base slot ("volts"),
+which describes the decoded raw data; the "distance" slot; and the
+"force" slot.  The "default" slot in this case is "force", meaning
+that when the experiment was done the "force" calibration was
+selected.  (The default slot is the one that should normally be
+preferred for further processing.)
+
+To convert our example value into a force requires the following
+series of steps:
+
+1. Notice that the "base-calibration-slot" for "force" is "distance",
+   so we first have to compute the value as a distance.
+
+2. Notice that the "base-calibration-slot" for "distance" is "volts".
+   Volts is the base slot, so we already know that the value in volts
+   is 0.3923 V from the procedure described in chapter `Encoders`_.
+
+3. Convert from "volts" to "distance" by using the "distance"
+   conversion:
+
+     (0.3923) * 1.0E-7 + (-2.7968E-8) -> 1.1262e-8 m = 11.262 nm
+
+4. Convert from "distance" to "force" by using the "force" conversion:
+
+     (1.1262e-8) * 0.1 + 0.0 -> 1.1262e-9 N = 1.1262 nN
+
+**IMPORTANT** Calibration parameters such as the sensitivity and the
+spring constant are not stored separately in the data headers.
+Instead, they are read out of the conversion set.  For example, the
+spring constant is the value for
+``channel.vDeflection.conversion-set.conversion.force.scaling.multiplier``,
+which in this example is 0.1 N/m.  The sensitivity is the value for
+``channel.vDeflection.conversion-set.conversion.distance.scaling.multiplier``,
+which in this example is 1.0E-7 m/V.
+
+
+-------------------
+Further information
+-------------------
+
+This description of the JPK Instruments force spectroscopy file format
+is, of course, not exhaustive.  It is hoped that the other header
+fields are relatively self-explanatory.  However, if you have any
+questions, please do not hesitate to contact `JPK Instruments`_ for
+further information.
+
+.. _JPK Instruments: support@jpk.com
+

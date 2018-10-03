@@ -1,0 +1,9 @@
+For this version I changed:
+Open sample readtxt (it reads extend)
+Supeimpose traces (il plots lines)
+I add for Membrane
+
+
+Andrea Perissinotto
+Paolo Fabris
+Nicola Galvanetto

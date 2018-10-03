@@ -2,6 +2,8 @@ Copy this folder to Matlab Workspace and add it to path with subfolders (right c
 
 Type Fodis on command window and enter.
 
+Fodis 1.2 --> For SMFS (protein unfolding experiments)
+Fodis 1.3 --> For SMFS + Membrane mechanics
 
 
 It was written and tested in Matlab 2016b.
