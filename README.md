@@ -1,3 +1,4 @@
+*If you need the Fodis version for Membrane Mechanics analysis DO NOT download from here, but CLONE the repository in your computer and run Fodis_SourceCode_MATLAB/Fodis 1.3 (Galvanetto, BBA-Biomembranes, 2018)
 
 [<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
 
@@ -8,7 +9,7 @@ Fodis is a desktop application to visualise and analyze Force Spectroscopy curve
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/afm-ot1.JPG">
 <img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/view.JPG">
 
-*If you need the Fodis version for Membrane Mechanics analysis DO NOT download from here, but CLONE the repository in your computer and run Fodis_SourceCode_MATLAB/Fodis 1.3 (Galvanetto, BBA-Biomembranes, 2018)
+
 
 # License
 
