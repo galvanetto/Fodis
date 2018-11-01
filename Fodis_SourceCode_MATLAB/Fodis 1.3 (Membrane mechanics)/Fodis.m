@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 30-Jul-2018 14:37:17
+% Last Modified by GUIDE v2.5 01-Nov-2018 12:22:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -3401,7 +3401,7 @@ disp('Done')
 
 
 
-function menu_Membrane_Callback(hObject, eventdata, handles)
+function menu_membrane_Callback(hObject, eventdata, handles)
 
 
 
@@ -3440,10 +3440,11 @@ for ii = 1:1:nTraces
     inputData = [((retractTipSampleSeparation + translateLc) * 1E9)', retractVDeflection' * 1E12];
     histData = cat(1, histData, inputData);
     
+    
+    peak_prominence= str2double(get(handles.editThresholdNPoints, 'string')) * 1e-10;
   
           
-    [pks,locs, w, prominence] = findpeaks(retractVDeflection ,'MinPeakDistance',100,'MinPeakProminence',0.3e-9); %0.3 nN prominence, not small
-    %[pks,locs, w, prominence] = findpeaks(retractVDeflection ,'MinPeakDistance',100,'MinPeakProminence',0.1e-9); %0.1 nN prominence,  small
+    [pks,locs, w, prominence] = findpeaks(retractVDeflection ,'MinPeakDistance',100,'MinPeakProminence',peak_prominence); 
     
     if ~isempty(pks)
        [M, I] = max(pks);
@@ -3476,7 +3477,7 @@ catch e
 end
 
 
-pause(1);
+pause(0.5);
 
 
 figure;
@@ -3489,7 +3490,7 @@ ylabel('F (pN)');
 xlim([data.scaleMinTss data.scaleMaxTss]);
 ylim([data.scaleMinF data.scaleMaxF]);
 
-pause(1);
+pause(0.5);
 
 
 data.force_value_membrane=[];
@@ -3499,5 +3500,37 @@ data.force_value_membrane=force_value;
 data.position_value_membrane=position_value;
 parameters_membrane;
 
+function export_break_Callback(hObject, eventdata, handles)
+break_memb_Callback(hObject, eventdata, handles);
+
+global data
+global positiveResult
+
+position_force=[ data.position_value_membrane data.force_value_membrane];
+
+export_txt_break(position_force)
 
 
+
+function export_xy_superimpose_Callback(hObject, eventdata, handles)
+global data
+global positiveResult
+
+tempData = [];
+
+%Add Trace
+indexCount = 1;
+for ii = 1:positiveResult.nTraces
+    
+    iieffTrace=positiveResult.indexTrace(ii);       %Actual trace
+    % check if traces must be removed
+    if(data.removeTraces(iieffTrace) == 1);continue;end
+    
+    tempData.tracesRetract{indexCount, 1} = data.tracesRetract{iieffTrace,1} + data.translateLc(iieffTrace);
+    tempData.tracesRetract{indexCount, 2} = data.tracesRetract{iieffTrace,2};
+    
+    indexCount = indexCount + 1;
+end
+
+tempData.nTraces = indexCount - 1;
+export_Traces_append(tempData);
