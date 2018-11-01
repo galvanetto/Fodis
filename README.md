@@ -1,4 +1,10 @@
-*If you need the Fodis version for Membrane Mechanics analysis DO NOT download from here, but CLONE the repository in your computer and run Fodis_SourceCode_MATLAB/Fodis 1.3 (Galvanetto, BBA-Biomembranes, 2018) [EXECUTABLES NOT YET AVAILABLE, MATLAB ONLY]
++++ Updates in progress: If you need the Fodis 1.3 version for Membrane Mechanics analysis DO NOT download from the button below, but CLONE the repository.
+
+Fodis 1.3 Currently available in:
+	
+-.m (matlab version)
+
+-.exe (Windows version)
 
 [<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
 
