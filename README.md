@@ -15,8 +15,6 @@ but CLONE or DOWNLOAD the repository from the GREEN button above.
 [<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
 
 
-[<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
-
 # About Fodis
 
 Fodis is a desktop application to visualise and analyze Force Spectroscopy curves of the unfolding of Single Molecules.
