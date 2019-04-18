@@ -11,7 +11,7 @@ If you need the Fodis 1.2 for protein unfolding analysis (ref. Galvanetto et al.
 If you need the Fodis 1.3 version that contains Membrane Mechanics Analysis (ref. Galvanetto, BBA, 2018) DO NOT download from the blue button below, 
 but CLONE or DOWNLOAD the repository from the GREEN button above.
 
-
+<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download50.PNG">
 
 [<img src="https://raw.githubusercontent.com/PRIDE-Toolsuite/pride-inspector/master/wiki/download.png">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
 
