@@ -1,4 +1,4 @@
-If you are a Matlab user, run Fodis the source code.
+If you are a Matlab user, run the source code.
 If you aren't, you'll see the instructions in Fodis for WIN MAC LINUX.
 
 [<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.3/Fodis.zip)
