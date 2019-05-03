@@ -1,7 +1,7 @@
 Fodis 1.3 = Fodis 1.2 + Membrane Mechanics Analysis (ref. Galvanetto, BBA, 2018)
 
 
-[<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
+[<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.3/Fodis.zip)
 *linux stand alone version available only for version 1.2.
 
 # About Fodis
