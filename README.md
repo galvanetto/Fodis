@@ -1,19 +1,8 @@
-+++ UPDATES IN PROGRESS: 
-Fodis 1.3 = (Fodis 1.2 + Membrane Mechanics Analysis)  Currently available in:
-	
--.m (matlab version)
-
--.exe (Windows version)
-
-
-If you need the Fodis 1.2 for protein unfolding analysis (ref. Galvanetto et al.,Biophy. J., 2018) no problem.
-
-If you need the Fodis 1.3 version that contains Membrane Mechanics Analysis (ref. Galvanetto, BBA, 2018) DO NOT download from the blue button below, 
-but CLONE or DOWNLOAD the repository from the GREEN button above.
+Fodis 1.3 = Fodis 1.2 + Membrane Mechanics Analysis (ref. Galvanetto, BBA, 2018)
 
 
 [<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.2/Fodis-master.zip)
-
+*linux stand alone version available only for version 1.2.
 
 # About Fodis
 
