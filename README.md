@@ -1,7 +1,10 @@
 Fodis 1.3 = Fodis 1.2 + Membrane Mechanics Analysis (ref. Galvanetto, BBA, 2018)
 
+
 If you are a Matlab user, run Fodis from the surce code. 
+
 If you are not, you will see te instruction in Fodis for WIN MAC LINUX.
+
 [<img src="https://github.com/nicolagalvanetto/Fodis/blob/master/screenshots/download30.PNG">](https://github.com/nicolagalvanetto/Fodis/releases/download/v1.3/Fodis.zip)
 *linux stand alone version available only for version 1.2.
 
