@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 01-Nov-2018 12:22:03
+% Last Modified by GUIDE v2.5 13-Jun-2019 13:00:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2556,6 +2556,13 @@ switch(indexView)
     case 'Global persistance length-Lc histogram'
         % Fit the traces with variable persistance lengths
         
+       data.ExcelExport.p={};
+        data.ExcelExport.LCwithfree_p={};
+        data.ExcelExport.FC={};
+        
+        
+        % Fit the traces with variable persistance lengths
+        
         minP = str2double(get(handles.editMinP, 'string')) * 1E-9;
         maxP = str2double(get(handles.editMaxP, 'string')) * 1E-9;
         binP = str2double(get(handles.editBinP, 'string')) * 1E-9;
@@ -2583,6 +2590,14 @@ switch(indexView)
             tempTss = retractTipSampleSeparation + translateLc;
             tempF = -retractVDeflection;
             
+            
+            % get contour lenght (just need for FcMax (they should correspond in terms of number of peaks)
+            [~, ~,~, ~, ~, ~, FcMax, ~,~] =...
+                getContourLength(tempTss, tempF, tssMin, tssMax, FMin,FMax,...
+                LcMin, LcMax, maxTssOverLc, xBin, binSize,zerosTempMax,...
+                translateLc, xBinSizeMax, thresholdHist, persistenceLength);
+            
+            
             % get best fit with variable persistance length
             [currentBestP, currentBestLcPeaks] = ...
                 fitPersistanceLength(tempTss, tempF, listP,...
@@ -2593,6 +2608,13 @@ switch(indexView)
             % save best fit
             bestP = [bestP, currentBestP];
             bestLcPeaks = [bestLcPeaks, currentBestLcPeaks];
+            
+            
+            data.ExcelExport.LCwithfree_p{iieffTrace,1}=currentBestLcPeaks;
+            data.ExcelExport.FC{iieffTrace,1}=FcMax(FcMax>0);
+            data.ExcelExport.p{iieffTrace,1}=currentBestP;
+            
+            
             
             if(mod(ii, round(0.1 * nTraces)) == 0);waitbar(ii/nTraces);end
         end
@@ -2969,6 +2991,8 @@ data.listFc=cell(data.nTraces,1);
 data.ExcelExport.LC=cell(data.nTraces,1);
 data.ExcelExport.FC=cell(data.nTraces,1);
 data.ExcelExport.Slope=cell(data.nTraces,1);
+data.ExcelExport.p=cell(data.nTraces,1);
+data.ExcelExport.LCwithfree_p=cell(data.nTraces,1);
 
 setappdata(handles.fig_FtW,'triggerLc',0)
 setappdata(handles.fig_FtW,'triggerLc2',0)
@@ -3388,6 +3412,77 @@ fprintf(fid, '\nTrace num.,Slope at the end of the peak (nN/nm)\n');
 for ii=1:numTraces
     
     values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.Slope{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar((ii+2*numTraces)/(3*numTraces));
+end
+
+
+fclose(fid);
+delete(hh);
+
+disp('Done')
+
+function menu_exportcsv_free_p_Callback(hObject, eventdata, handles)
+
+
+global data
+global positiveResult
+
+
+[filename, pathname] = uiputfile({'*.txt'}, 'Export traces');
+
+if (filename == 0);return;end
+
+fid = fopen(fullfile(pathname, filename), 'w');
+
+set(handles.popupmenuView,'value',16)                                      %Move to GLobal Force Plot
+showTraces(handles)
+
+hh = waitbar(0, 'Please wait, we are writing...');
+
+selections = get(handles.editSelectedTraces, 'string');           %to see the numbers of selected
+if isempty(selections)
+   data.removeTraces(positiveResult.indexTrace) = 1;  
+   data.TracesGroup(positiveResult.indexTrace)=0;
+   showTraces(handles);
+   return
+end
+
+selections = textscan(selections, '%s', 'delimiter', ',');
+selections = str2double(selections{1});
+True_selections=find(~cellfun('isempty', data.ExcelExport.FC));   %to see the numbers in the valid
+
+
+
+
+numTraces = length(selections);                                          %Nr total traces
+
+fprintf(fid, 'Trace num.,Peaks Lc with free p (m)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.LCwithfree_p{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar(ii/(3*numTraces));
+end
+
+fprintf(fid, '\nTrace num.,Peak Force (N)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.FC{True_selections(ii)},'UniformOutput',false),',');
+    values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
+    fprintf(fid, values_complete);
+    waitbar((ii+numTraces)/(3*numTraces));
+end
+
+fprintf(fid, '\nTrace num.,p - Persistence length (nm)\n');
+
+for ii=1:numTraces
+    
+    values_comma=strjoin(arrayfun(@(x) num2str(x),data.ExcelExport.p{True_selections(ii)}*1e9,'UniformOutput',false),',');
     values_complete=strcat(num2str(selections(ii)),',',values_comma,'\n');
     fprintf(fid, values_complete);
     waitbar((ii+2*numTraces)/(3*numTraces));
