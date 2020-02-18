@@ -1,0 +1,12 @@
+[submodule "UtilGeneral"]
+	path = UtilGeneral
+	url = https://github.com/prheenan/UtilGeneral.git
+[submodule "UtilForce"]
+	path = UtilForce
+	url = https://github.com/prheenan/UtilForce.git
+[submodule "UtilIgor"]
+	path = UtilIgor
+	url = https://github.com/prheenan/UtilIgor.git
+[submodule "UtilIgorPro"]
+	path = UtilIgorPro
+	url = https://github.com/prheenan/UtilIgorPro.git
