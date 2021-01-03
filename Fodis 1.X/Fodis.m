@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 23-Jan-2020 12:28:25
+% Last Modified by GUIDE v2.5 03-Jan-2021 18:12:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4084,6 +4084,64 @@ fingerprint_ROI_2;
 
 
 % --------------------------------------------------------------------
+
+
+
+
+
+% --------------------------------------------------------------------
+function work_Callback(hObject, eventdata, handles)
+
+
+global data
+global positiveResult
+
+nTraces = positiveResult.nTraces;
+
+% initialize work variable
+
+work_list=[];
+
+
+hhh=waitbar(0);
+
+for ii = 1:1:nTraces
+    
+    iieffTrace=positiveResult.indexTrace(ii);       %Actual trace
+    translateLc = data.translateLc(iieffTrace);
+    % check if traces must be removed
+    if(data.removeTraces(iieffTrace) == 1);continue;end
+    
+    [~,retractTipSampleSeparation,...
+        ~,retractVDeflection,~]  = getTrace(iieffTrace, data);
+    
+    
+    neg_points=find(retractVDeflection < 0);
+    begin_p=neg_points(1);
+    
+    wp = -trapz( retractTipSampleSeparation( begin_p : end ), retractVDeflection( begin_p : end ) );
+
+    work_list=[work_list, wp];
+ 
+  
+
+    
+    waitbar(ii/nTraces);
+    
+    
+end
+
+delete(hhh);
+
+
+
+figure;
+
+histogram(work_list*10^18)
+title(   strcat('Average Unfolding Work (aJ) | mean = '  , num2str(mean(work_list *10^18) )   ));
+xlabel('Work (aJ)');
+ylabel('n');
+xlim([0 max(work_list*10^18)*1.3]);
 
 
 
