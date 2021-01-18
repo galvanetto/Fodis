@@ -1,4 +1,4 @@
-*Fodis is continously updated, but the beta version is intended for brave users only and is not fully documented [Fodis 1.X](http://www.apache.org/licenses/LICENSE-2.0.txt).*
+*Fodis is continously updated, but the beta version is intended for brave users only and is not fully documented [Fodis 1.X](https://github.com/galvanetto/Fodis/tree/Fodis-X).*
 
 If you prefer the reliable version, you are in the right page.
 If you are a Matlab user, run the source code.
