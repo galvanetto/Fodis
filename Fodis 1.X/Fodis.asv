@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 21-Jan-2021 13:14:11
+% Last Modified by GUIDE v2.5 21-Jan-2021 12:48:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4172,13 +4172,15 @@ for ii = 1:1:nTraces
         ~,retractVDeflection,~]  = getTrace(iieffTrace, data);
     
     
-    lim_min=data.scaleMinTss * 10^-9;
-    lim_max=data.scaleMaxTss * 10^-9;
+    lim_min=data.scaleMinTss * 10^9;
+    lim_max=data.scaleMaxTss * 10^9;
     
-    interval_points=find(retractTipSampleSeparation < lim_max  & retractTipSampleSeparation > lim_min);
-    max_force_point = max( -retractVDeflection(interval_points)  );
+    interval_points=find(retractTipSampleSeparation < lim_max  && retractTipSampleSeparation > lim_min);
+    begin_p=neg_points(1);
     
-    force_list=[force_list, max_force_point];
+    wp = -trapz( retractTipSampleSeparation( begin_p : end ), retractVDeflection( begin_p : end ) );
+
+    force_list=[force_list, wp];
  
   
 
@@ -4200,76 +4202,6 @@ xlabel('Force (pN)');
 ylabel('n');
 xlim([data.scaleMinF data.scaleMaxF]);
 
-
-
-% --------------------------------------------------------------------
-function force_hist_limits_Lc_Callback(hObject, eventdata, handles)
-global data
-global positiveResult
-
-% get Lc parameters
-[tssMin,tssMax,FMin,FMax,xBin,binSize,histValue,maxHistValue,zerosTempMax,...
-    LcMin,LcMax,maxTssOverLc,xBinSizeMax,thresholdHist,xBinFcMax,...
-    xBinDeltaLc, minDeltaLc, maxDeltaLc, startLcDeltaLc, persistenceLength]...
-    = getLcParameters(handles);
-
-nTraces = positiveResult.nTraces;
-
-% initialize work variable
-
-force_list=[];
-
-
-hhh=waitbar(0);
-
-for ii = 1:1:nTraces
-    
-    iieffTrace=positiveResult.indexTrace(ii);       %Actual trace
-    translateLc = data.translateLc(iieffTrace);
-    % check if traces must be removed
-    if(data.removeTraces(iieffTrace) == 1);continue;end
-    
-       
-    
-    [~,retractTipSampleSeparation,...
-        ~,retractVDeflection,~]  = getTrace(iieffTrace, data);
-    
-                
-            % get tss F
-            tempTss = retractTipSampleSeparation + translateLc;
-            tempF = -retractVDeflection;
-            
-            % get contour lenght
-            [Lc,Fc,~,~] = getContourLength(tempTss,...
-                tempF, tssMin, tssMax, FMin, FMax, LcMin, LcMax,...
-                maxTssOverLc, xBin, binSize, zerosTempMax, translateLc,...
-                xBinSizeMax, thresholdHist, persistenceLength);
-    
-    
-    lim_min=data.scaleMinTss * 10^-9;
-    lim_max=data.scaleMaxTss * 10^-9;
-    
-    interval_points=find(Lc < lim_max  & Lc > lim_min);
-    max_force_point = max( Fc(interval_points)  );
-    
-    force_list=[force_list, max_force_point];
- 
-  
-
-    
-    waitbar(ii/nTraces);
-    
-    
-end
-
-delete(hhh);
-
-
-
-figure;
-
-histogram(force_list *10^12)
-title(   strcat('Average Unfolding Force (pN) | mean = '  , num2str(mean(force_list *10^12) )   ));
-xlabel('Force (pN)');
-ylabel('n');
-xlim([data.scaleMinF data.scaleMaxF]);
+%         xlim([data.scaleMinTss data.scaleMaxTss]); xlabel('Lc (nm)');
+%         ylim([data.scaleMinF data.scaleMaxF]);           ylabel('F (pN)');
+% 
