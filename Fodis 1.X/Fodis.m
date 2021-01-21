@@ -3150,7 +3150,7 @@ switch(indexView)
         title(['Superimpose of ' num2str(nTraces) ' Lc histograms'...
             ' [' data.sessionFileName ']']);
         xlim([data.scaleMinTss data.scaleMaxTss]); xlabel('Lc (nm)');
-        ylim([FMin * 1E12 FMax * 1E12]);           ylabel('F (pN)');
+        ylim([data.scaleMinF data.scaleMaxF]);           ylabel('F (pN)');
         % Plot 0 Axes
         hold on; plot(xlim, [0 0],'k:');
         hold on; plot([0 0], ylim, 'k:');
@@ -3169,7 +3169,7 @@ switch(indexView)
             
             title(['Density plot of ', num2str(nTraces), ' traces']);
             xlim([data.scaleMinTss data.scaleMaxTss]); xlabel('Lc (nm)');
-            ylim([FMin * 1E12 FMax * 1E12]);           ylabel('F (pN)');
+            ylim([data.scaleMinF data.scaleMaxF]);           ylabel('F (pN)');
             
         end
         
