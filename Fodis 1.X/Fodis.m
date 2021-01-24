@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 21-Jan-2021 13:14:11
+% Last Modified by GUIDE v2.5 24-Jan-2021 19:12:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4091,7 +4091,7 @@ fingerprint_ROI_2;
 
 % --------------------------------------------------------------------
 function work_Callback(hObject, eventdata, handles)
-
+%this function compute the inegral below the curve from Zero to the end
 
 global data
 global positiveResult
@@ -4137,18 +4137,77 @@ delete(hhh);
 
 figure;
 
-histogram(work_list*10^18)
+histogram(work_list*10^18,'BinWidth',1)
 title(   strcat('Average Unfolding Work (aJ) | mean = '  , num2str(mean(work_list *10^18) )   ));
 xlabel('Work (aJ)');
 ylabel('n');
 xlim([0 max(work_list*10^18)*1.3]);
 
 
+% --------------------------------------------------------------------
+function work_limits_Callback(hObject, eventdata, handles)
+%this function compute the inegral below the curve from min x to max x (the view)
 
+global data
+global positiveResult
+
+nTraces = positiveResult.nTraces;
+
+% initialize work variable
+
+work_list=[];
+
+
+hhh=waitbar(0);
+
+for ii = 1:1:nTraces
+    
+    iieffTrace=positiveResult.indexTrace(ii);       %Actual trace
+    translateLc = data.translateLc(iieffTrace);
+    % check if traces must be removed
+    if(data.removeTraces(iieffTrace) == 1);continue;end
+    
+    [~,retractTipSampleSeparation,...
+        ~,retractVDeflection,~]  = getTrace(iieffTrace, data);
+    
+    
+    abovemin_points=find(retractTipSampleSeparation > data.scaleMinTss * 10^-9);
+    abovemax_points=find(retractTipSampleSeparation < data.scaleMaxTss * 10^-9);
+    begin_p=abovemin_points(1);
+    end_p=abovemax_points(end);
+    
+    
+    wp = -trapz( retractTipSampleSeparation( begin_p : end_p ), retractVDeflection( begin_p : end_p ) );
+
+    work_list=[work_list, wp];
+ 
+  
+
+    
+    waitbar(ii/nTraces);
+    
+    
+end
+
+delete(hhh);
+
+
+
+figure;
+
+histogram(work_list*10^18,'BinWidth',1)
+title(   strcat('Average Unfolding Work (aJ) | mean = '  , num2str(mean(work_list *10^18) )   ));
+xlabel('Work (aJ)');
+ylabel('n');
+xlim([0 max(work_list*10^18)*1.3]);
 
 
 % --------------------------------------------------------------------
 function force_hist_limits_Callback(hObject, eventdata, handles)
+%this function generate the force histogram of the maxima of every trace
+%within the limits of the view       data.scaleMinTss;    data.scaleMaxTss
+%(consder the point in the superimpose of the trace (not Lc))
+
 global data
 global positiveResult
 
@@ -4204,6 +4263,11 @@ xlim([data.scaleMinF data.scaleMaxF]);
 
 % --------------------------------------------------------------------
 function force_hist_limits_Lc_Callback(hObject, eventdata, handles)
+%this function generate the force histogram of the maxima of every trace
+%within the limits of the view       data.scaleMinTss;    data.scaleMaxTss
+%(consder the point in the superimpose of the LC)
+
+
 global data
 global positiveResult
 
@@ -4273,3 +4337,6 @@ title(   strcat('Average Unfolding Force (pN) | mean = '  , num2str(mean(force_l
 xlabel('Force (pN)');
 ylabel('n');
 xlim([data.scaleMinF data.scaleMaxF]);
+
+
+
