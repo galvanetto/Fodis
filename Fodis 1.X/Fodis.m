@@ -22,7 +22,7 @@ function varargout = Fodis(varargin)
 
 % Edit the above text to modify the response to help Fodis
 
-% Last Modified by GUIDE v2.5 24-Jan-2021 19:12:31
+% Last Modified by GUIDE v2.5 02-Nov-2021 20:04:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4340,3 +4340,43 @@ xlim([data.scaleMinF data.scaleMaxF]);
 
 
 
+
+
+% --------------------------------------------------------------------
+function sinecorrection_Callback(hObject, eventdata, handles)
+
+global data
+
+
+hhh=waitbar(0);
+
+for ii = 1:1:length(data.tracesExtend)
+    
+    x=data.tracesExtend{ii,1}(1:end-200);
+    y=data.tracesExtend{ii,2}(1:end-200);
+    
+    yu = max(y);
+    yl = min(y);
+    yr = (yu-yl);                               % Range of ‘y’
+    yz = y-yu+(yr/2);
+    zx = x(yz(:) .* circshift(yz(:),[1 0]) <= 0);     % Find zero-crossings
+    per = 0.8*(x(end)-x(1));                     % Estimate period
+    ym = mean(y);                               % Estimate offset
+    fit = @(b,x)  b(1).*(sin(2*pi*x./b(2) + 2*pi/b(3))) + b(4);    % Function to fit
+    fcn = @(b) sum((fit(b,x) - y).^2);                              % Least-Squares cost function
+    options = optimset('MaxFunEvals',10000,'MaxIter',10000,'TolFun',1e-20,'TolX',1e-20);
+    s = fminsearch(fcn, [yr;  per;  -1;  ym],options)                       % Minimise Least-Squares
+    xp = linspace(min(x),max(x));
+    figure(1)
+    plot(x,y,'b',  xp,fit(s,xp), 'r')
+    grid
+    
+    
+    
+    waitbar(ii/length(data.tracesExtend));
+    
+    data.tracesRetract{ii,2}=data.tracesRetract{ii,2}-fit(s,data.tracesRetract{ii,1});
+    
+end
+
+delete(hhh);
